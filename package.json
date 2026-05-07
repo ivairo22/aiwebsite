@@ -1,0 +1,18 @@
+{
+  "name": "recipe-users-api",
+  "version": "1.0.0",
+  "description": "Simple JavaScript users dataset with helper functions",
+  "main": "users.js",
+  "scripts": {
+    "start": "node users.js"
+  },
+  "keywords": [
+    "javascript",
+    "nodejs",
+    "users",
+    "recipes",
+    "api"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
