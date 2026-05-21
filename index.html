@@ -3,104 +3,1202 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FlavorHub</title>
-    <link rel="stylesheet" href="style.css" />
+    <title>VLTG — Rare Streetwear Accessories</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --black: #080808;
+            --white: #f0ece3;
+            --acid: #c8ff00;
+            --rust: #d94f2b;
+            --steel: #2a2a2a;
+            --muted: #555;
+            --border: rgba(240,236,227,0.1);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--black);
+            color: var(--white);
+            font-family: 'Space Mono', monospace;
+            cursor: none;
+            overflow-x: hidden;
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            position: fixed;
+            width: 12px; height: 12px;
+            background: var(--acid);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s, width 0.2s, height 0.2s;
+            mix-blend-mode: difference;
+        }
+        .cursor-ring {
+            position: fixed;
+            width: 36px; height: 36px;
+            border: 1px solid var(--acid);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: transform 0.18s ease, width 0.25s, height 0.25s;
+            mix-blend-mode: difference;
+        }
+        body:has(a:hover) .cursor { width: 20px; height: 20px; }
+        body:has(a:hover) .cursor-ring { width: 56px; height: 56px; }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0.35;
+        }
+
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 900;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 48px;
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(12px);
+            background: rgba(8,8,8,0.7);
+        }
+        .nav-logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 0.25em;
+            color: var(--white);
+            text-decoration: none;
+        }
+        .nav-logo span { color: var(--acid); }
+        .nav-links { display: flex; gap: 32px; list-style: none; }
+        .nav-links a {
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: var(--acid); }
+        .nav-drop {
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            background: var(--acid);
+            color: var(--black);
+            padding: 8px 18px;
+            font-weight: 700;
+            cursor: none;
+            border: none;
+            font-family: 'Space Mono', monospace;
+            transition: background 0.2s;
+        }
+        .nav-drop:hover { background: #e0ff55; }
+
+        .hero {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            padding-top: 80px;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-left {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 80px 48px 80px 80px;
+            position: relative;
+            z-index: 2;
+        }
+        .hero-tag {
+            font-size: 0.65rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--acid);
+            margin-bottom: 24px;
+            opacity: 0;
+            animation: fadeUp 0.8s 0.2s forwards;
+        }
+        .hero-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(5rem, 9vw, 10rem);
+            line-height: 0.9;
+            letter-spacing: 0.02em;
+            opacity: 0;
+            animation: fadeUp 0.8s 0.4s forwards;
+        }
+        .hero-title .accent { color: var(--acid); display: block; }
+        .hero-title .stroke {
+            -webkit-text-stroke: 1px var(--white);
+            color: transparent;
+        }
+        .hero-sub {
+            margin-top: 32px;
+            font-size: 0.75rem;
+            line-height: 1.8;
+            color: var(--muted);
+            max-width: 340px;
+            opacity: 0;
+            animation: fadeUp 0.8s 0.6s forwards;
+        }
+        .hero-ctas {
+            margin-top: 48px;
+            display: flex;
+            gap: 16px;
+            opacity: 0;
+            animation: fadeUp 0.8s 0.8s forwards;
+        }
+        .btn-primary {
+            background: var(--acid);
+            color: var(--black);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            padding: 14px 32px;
+            text-decoration: none;
+            transition: transform 0.2s, background 0.2s;
+            display: inline-block;
+        }
+        .btn-primary:hover { background: #d9f500; transform: translate(-2px,-2px); }
+        .btn-ghost {
+            background: transparent;
+            color: var(--white);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            padding: 14px 32px;
+            text-decoration: none;
+            border: 1px solid var(--border);
+            transition: border-color 0.2s, color 0.2s;
+            display: inline-block;
+        }
+        .btn-ghost:hover { border-color: var(--white); color: var(--acid); }
+
+        .hero-stats {
+            display: flex;
+            gap: 40px;
+            margin-top: 64px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border);
+            opacity: 0;
+            animation: fadeUp 0.8s 1s forwards;
+        }
+        .stat-num {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.4rem;
+            color: var(--acid);
+            display: block;
+        }
+        .stat-label {
+            font-size: 0.6rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .hero-right {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .hero-visual {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        .hero-bg-text {
+            position: absolute;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 28vw;
+            line-height: 1;
+            color: rgba(200,255,0,0.03);
+            letter-spacing: -0.05em;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            white-space: nowrap;
+            pointer-events: none;
+            user-select: none;
+        }
+        .hero-cards {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .hero-card {
+            position: absolute;
+            background: var(--steel);
+            border: 1px solid var(--border);
+            padding: 16px;
+            transition: transform 0.4s ease;
+            animation: float 6s ease-in-out infinite;
+        }
+        .hero-card:nth-child(1) { width: 190px; top: 15%; left: 5%; animation-delay: 0s; }
+        .hero-card:nth-child(2) { width: 220px; top: 33%; left: 36%; animation-delay: -2s; }
+        .hero-card:nth-child(3) { width: 175px; bottom: 18%; left: 8%; animation-delay: -4s; }
+        .hero-card-img {
+            width: 100%;
+            aspect-ratio: 1;
+            background: #151515;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-card-img::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(200,255,0,0.06) 0%, transparent 60%);
+        }
+        .hero-card-name {
+            font-size: 0.6rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--muted);
+            line-height: 1.4;
+        }
+        .hero-card-price {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.3rem;
+            color: var(--acid);
+            margin-top: 4px;
+        }
+        .sold-badge {
+            position: absolute;
+            top: 8px; right: 8px;
+            background: var(--rust);
+            font-size: 0.5rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 3px 7px;
+            font-weight: 700;
+            font-family: 'Space Mono', monospace;
+        }
+        .rare-badge {
+            position: absolute;
+            top: 8px; right: 8px;
+            background: var(--acid);
+            color: var(--black);
+            font-size: 0.5rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 3px 7px;
+            font-weight: 700;
+            font-family: 'Space Mono', monospace;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-12px) rotate(0.5deg); }
+            66% { transform: translateY(6px) rotate(-0.3deg); }
+        }
+
+        .ticker {
+            background: var(--acid);
+            color: var(--black);
+            padding: 10px 0;
+            overflow: hidden;
+        }
+        .ticker-inner {
+            display: flex;
+            white-space: nowrap;
+            animation: ticker 18s linear infinite;
+        }
+        .ticker-item {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1rem;
+            letter-spacing: 0.2em;
+            padding: 0 48px;
+        }
+        .ticker-dot { margin: 0 8px; opacity: 0.5; }
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        section { padding: 120px 80px; }
+        .section-tag {
+            font-size: 0.6rem;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: var(--acid);
+            margin-bottom: 16px;
+            display: block;
+        }
+        .section-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(3rem, 5vw, 5.5rem);
+            line-height: 0.95;
+            letter-spacing: 0.03em;
+        }
+
+        .drops { background: var(--black); }
+        .drops-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 64px;
+        }
+        .drops-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2px;
+        }
+        .product-card {
+            background: var(--steel);
+            position: relative;
+            overflow: hidden;
+            cursor: none;
+        }
+        .product-card:hover .product-overlay { opacity: 1; }
+        .product-card:hover .product-img-inner { transform: scale(1.05); }
+        .product-img {
+            aspect-ratio: 3/4;
+            overflow: hidden;
+            position: relative;
+            background: #111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .product-img-inner {
+            transition: transform 0.6s ease;
+            font-size: 4.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+        .product-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(200,255,0,0.08);
+            opacity: 0;
+            transition: opacity 0.3s;
+            display: flex;
+            align-items: flex-end;
+            padding: 20px;
+        }
+        .overlay-btn {
+            background: var(--acid);
+            color: var(--black);
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 700;
+            padding: 10px 20px;
+            font-family: 'Space Mono', monospace;
+            border: none;
+            cursor: none;
+            width: 100%;
+        }
+        .product-info { padding: 16px; }
+        .product-brand {
+            font-size: 0.55rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+        .product-name {
+            font-family: 'Syne', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin: 4px 0;
+            line-height: 1.3;
+        }
+        .product-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+        }
+        .product-price {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.3rem;
+            color: var(--acid);
+        }
+        .product-retail {
+            font-size: 0.55rem;
+            color: var(--muted);
+            text-decoration: line-through;
+            margin-left: 4px;
+        }
+        .product-stock {
+            font-size: 0.55rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--rust);
+        }
+        .product-stock.available { color: #4cff82; }
+        .card-label {
+            position: absolute;
+            top: 12px; left: 12px;
+            font-size: 0.5rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            font-weight: 700;
+            z-index: 2;
+            font-family: 'Space Mono', monospace;
+        }
+        .label-drop { background: var(--rust); color: var(--white); }
+        .label-rare { background: var(--acid); color: var(--black); }
+        .label-collab { background: var(--white); color: var(--black); }
+        .label-sold { background: #333; color: var(--muted); }
+
+        /* StockX price tag */
+        .stockx-tag {
+            position: absolute;
+            bottom: 12px; left: 12px;
+            font-size: 0.5rem;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+            font-family: 'Space Mono', monospace;
+            z-index: 2;
+        }
+        .stockx-tag span { color: var(--acid); }
+
+        .story {
+            background: var(--steel);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .story-visual {
+            background: #111;
+            min-height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .story-visual::before {
+            content: 'RARE';
+            position: absolute;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 12rem;
+            color: rgba(200,255,0,0.04);
+            letter-spacing: 0.1em;
+        }
+        .story-content {
+            padding: 80px 72px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .story-quote {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2.5rem, 4vw, 4rem);
+            line-height: 1;
+            margin: 24px 0 32px;
+        }
+        .story-quote em {
+            font-style: normal;
+            -webkit-text-stroke: 1px var(--acid);
+            color: transparent;
+        }
+        .story-body {
+            font-size: 0.75rem;
+            line-height: 1.9;
+            color: var(--muted);
+            max-width: 400px;
+        }
+        .story-link {
+            margin-top: 40px;
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--acid);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .story-link::after { content: '→'; transition: transform 0.2s; }
+        .story-link:hover::after { transform: translateX(6px); }
+
+        .categories { background: var(--black); }
+        .cat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+            margin-top: 48px;
+        }
+        .cat-item { position: relative; overflow: hidden; cursor: none; }
+        .cat-inner {
+            aspect-ratio: 4/3;
+            background: var(--steel);
+            display: flex;
+            align-items: flex-end;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.4s;
+        }
+        .cat-item:hover .cat-inner { transform: scale(1.02); }
+        .cat-emoji {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -60%);
+            font-size: 4rem;
+            opacity: 0.3;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        .cat-item:hover .cat-emoji { opacity: 0.6; transform: translate(-50%,-65%) scale(1.1); }
+        .cat-bg {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(8,8,8,0.9) 0%, transparent 60%);
+        }
+        .cat-info { position: relative; z-index: 2; }
+        .cat-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.6rem;
+            letter-spacing: 0.05em;
+            display: block;
+        }
+        .cat-count {
+            font-size: 0.6rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .alert-section {
+            background: var(--acid);
+            padding: 80px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            gap: 80px;
+        }
+        .alert-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(3rem, 5vw, 5rem);
+            color: var(--black);
+            line-height: 0.95;
+        }
+        .alert-sub {
+            font-size: 0.75rem;
+            color: rgba(0,0,0,0.6);
+            margin-top: 16px;
+            line-height: 1.7;
+        }
+        .alert-form { display: flex; flex-direction: column; gap: 12px; }
+        .alert-input {
+            background: rgba(0,0,0,0.15);
+            border: 1px solid rgba(0,0,0,0.2);
+            color: var(--black);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            padding: 14px 20px;
+            outline: none;
+            transition: background 0.2s;
+            width: 100%;
+        }
+        .alert-input::placeholder { color: rgba(0,0,0,0.4); }
+        .alert-input:focus { background: rgba(0,0,0,0.25); }
+        .alert-btn {
+            background: var(--black);
+            color: var(--acid);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            padding: 14px;
+            border: none;
+            cursor: none;
+            transition: background 0.2s;
+        }
+        .alert-btn:hover { background: #1a1a1a; }
+        .alert-note { font-size: 0.6rem; color: rgba(0,0,0,0.45); letter-spacing: 0.1em; }
+
+        footer {
+            background: var(--steel);
+            padding: 64px 80px 40px;
+            border-top: 1px solid var(--border);
+        }
+        .footer-top {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1fr;
+            gap: 64px;
+            margin-bottom: 64px;
+        }
+        .footer-logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.5rem;
+            letter-spacing: 0.2em;
+            color: var(--white);
+            margin-bottom: 16px;
+        }
+        .footer-logo span { color: var(--acid); }
+        .footer-desc { font-size: 0.7rem; line-height: 1.8; color: var(--muted); max-width: 240px; }
+        .footer-col-title {
+            font-size: 0.6rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--acid);
+            margin-bottom: 20px;
+        }
+        .footer-links { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+        .footer-links a {
+            font-size: 0.7rem;
+            color: var(--muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .footer-links a:hover { color: var(--white); }
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 32px;
+            border-top: 1px solid var(--border);
+        }
+        .footer-copy { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.1em; }
+        .footer-socials { display: flex; gap: 20px; }
+        .social-link {
+            width: 36px; height: 36px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            text-decoration: none;
+            color: var(--muted);
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .social-link:hover { border-color: var(--acid); color: var(--acid); }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .reveal.visible { opacity: 1; transform: none; }
+
+        .countdown-bar {
+            background: rgba(8,8,8,0.9);
+            border: 1px solid var(--border);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 32px;
+            width: fit-content;
+            opacity: 0;
+            animation: fadeUp 0.8s 1.2s forwards;
+        }
+        .countdown-label {
+            font-size: 0.6rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+        .countdown-timer {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            color: var(--acid);
+            letter-spacing: 0.1em;
+        }
+        .pulse {
+            width: 6px; height: 6px;
+            background: var(--rust);
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.6); }
+        }
+    </style>
 </head>
 <body>
-<header class="hero">
-    <nav class="navbar">
-        <h2 class="logo">🍽️ FlavorHub</h2>
-        <div class="nav-links">
-            <a href="#recipes">Recepten</a>
-            <a href="#chefs">Chefs</a>
-            <a href="#about">Over ons</a>
-        </div>
-    </nav>
 
-    <div class="hero-content">
-        <span class="badge">Nieuw: ontdek 1000+ wereldrecepten</span>
-        <h1>Kook kleurrijk, proef de wereld.</h1>
-        <p>
-            Ontdek chefs, recepten en smaken uit Mexico, India, Japan, Italië en meer.
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+    <a class="nav-logo" href="#">VLT<span>G</span></a>
+    <ul class="nav-links">
+        <li><a href="#">Drops</a></li>
+        <li><a href="#">Accessories</a></li>
+        <li><a href="#">Archive</a></li>
+        <li><a href="#">About</a></li>
+    </ul>
+    <button class="nav-drop">Next Drop ↗</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-left">
+        <span class="hero-tag">— Rare. Limited. Uncompromising.</span>
+        <h1 class="hero-title">
+            <span>THE</span>
+            <span class="accent">RARE</span>
+            <span class="stroke">PIECES</span>
+        </h1>
+        <p class="hero-sub">
+            Handpicked streetwear accessories van de meest exclusieve drops worldwide. Geen reproductions. Geen fakes. Alleen het echte werk.
         </p>
-        <a href="#recipes" class="cta">Ontdek recepten</a>
+
+        <div class="countdown-bar">
+            <div class="pulse"></div>
+            <span class="countdown-label">Next drop in</span>
+            <span class="countdown-timer" id="countdownDisplay">02:14:37</span>
+        </div>
+
+        <div class="hero-ctas">
+            <a href="#" class="btn-primary">Shop Current Drop</a>
+            <a href="#" class="btn-ghost">View Archive</a>
+        </div>
+
+        <div class="hero-stats">
+            <div>
+                <span class="stat-num">847</span>
+                <span class="stat-label">Pieces Sold</span>
+            </div>
+            <div>
+                <span class="stat-num">12K</span>
+                <span class="stat-label">Members</span>
+            </div>
+            <div>
+                <span class="stat-num">99%</span>
+                <span class="stat-label">Authentic</span>
+            </div>
+        </div>
     </div>
-</header>
 
-<main>
-    <section id="recipes" class="section">
-        <h2>Populaire gerechten</h2>
-        <p class="section-text">Een mix van comfort food, street food en kleurrijke wereldkeukens.</p>
-
-        <div class="recipe-grid">
-            <article class="recipe-card">
-                <img src="https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=900&q=80" alt="Mexicaanse tacos">
-                <div>
-                    <h3>Mexicaanse Tacos</h3>
-                    <p>Pittig, fris en vol kleur.</p>
+    <div class="hero-right">
+        <div class="hero-visual">
+            <div class="hero-bg-text">VLT</div>
+            <div class="hero-cards">
+                <!-- Real product 1 -->
+                <div class="hero-card">
+                    <div class="hero-card-img">
+                        🧢
+                        <span class="sold-badge">Sold Out</span>
+                    </div>
+                    <div class="hero-card-name">Supreme S Logo 6-Panel FW24</div>
+                    <div class="hero-card-price">€76</div>
                 </div>
-            </article>
-
-            <article class="recipe-card">
-                <img src="https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=900&q=80" alt="Indiase curry">
-                <div>
-                    <h3>Indiase Curry</h3>
-                    <p>Romig, kruidig en vegan friendly.</p>
+                <!-- Real product 2 -->
+                <div class="hero-card">
+                    <div class="hero-card-img">
+                        🎒
+                        <span class="rare-badge">1 of 5</span>
+                    </div>
+                    <div class="hero-card-name">Supreme × TNF RTG Backpack SS20</div>
+                    <div class="hero-card-price">€255</div>
                 </div>
-            </article>
-
-            <article class="recipe-card">
-                <img src="https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=900&q=80" alt="Japanse ramen">
-                <div>
-                    <h3>Japanse Ramen</h3>
-                    <p>Warme bouillon met diepe umami.</p>
+                <!-- Real product 3 -->
+                <div class="hero-card">
+                    <div class="hero-card-img">🧣</div>
+                    <div class="hero-card-name">Dead Prez RBG Bandana FW19</div>
+                    <div class="hero-card-price">€225</div>
                 </div>
-            </article>
+            </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <section id="chefs" class="section chefs">
-        <h2>Onze top chefs</h2>
+<!-- TICKER -->
+<div class="ticker">
+    <div class="ticker-inner">
+        <span class="ticker-item">SUPREME FW25</span><span class="ticker-dot">✦</span>
+        <span class="ticker-item">PALACE DROP</span><span class="ticker-dot">✦</span>
+        <span class="ticker-item">LIMITED STOCK</span><span class="ticker-dot">✦</span>
+        <span class="ticker-item">100% AUTHENTIC</span><span class="ticker-dot">✦</span>
+        <span class="ticker-item">VLTG COLLECTIVE</span><span class="ticker-dot">✦</span>
+        <span class="ticker-item">WORLDWIDE SHIPPING</span><span class="ticker-dot">✦</span>
+        <span class="ticker-item">SUPREME FW25</span><span class="ticker-dot">✦</span>
+        <span class="ticker-item">PALACE DROP</span><span class="ticker-dot">✦</span>
+        <span class="ticker-item">LIMITED STOCK</span><span class="ticker-dot">✦</span>
+        <span class="ticker-item">100% AUTHENTIC</span><span class="ticker-dot">✦</span>
+        <span class="ticker-item">VLTG COLLECTIVE</span><span class="ticker-dot">✦</span>
+        <span class="ticker-item">WORLDWIDE SHIPPING</span><span class="ticker-dot">✦</span>
+    </div>
+</div>
 
-        <div class="chef-grid">
-            <article class="chef-card">
-                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=500&q=80" alt="Laura Montoya">
-                <h3>Laura Montoya</h3>
-                <p>Mexican • Top Chef</p>
-                <span>18.4K volgers</span>
-            </article>
-
-            <article class="chef-card">
-                <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=500&q=80" alt="Arjun Kapoor">
-                <h3>Arjun Kapoor</h3>
-                <p>Indian • Eco Hero</p>
-                <span>15.2K volgers</span>
-            </article>
-
-            <article class="chef-card">
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=80" alt="Sophie Chen">
-                <h3>Sophie Chen</h3>
-                <p>French • Dessert Queen</p>
-                <span>12.8K volgers</span>
-            </article>
-
-            <article class="chef-card">
-                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=500&q=80" alt="Carlos Reyes">
-                <h3>Carlos Reyes</h3>
-                <p>BBQ • Pro Chef</p>
-                <span>11.2K volgers</span>
-            </article>
+<!-- DROPS GRID — REAL PRODUCTS -->
+<section class="drops">
+    <div class="drops-header reveal">
+        <div>
+            <span class="section-tag">— Latest drops</span>
+            <h2 class="section-title">CURRENT<br>INVENTORY</h2>
         </div>
-    </section>
+        <a href="#" class="btn-ghost">View All →</a>
+    </div>
+    <div class="drops-grid">
 
-    <section id="about" class="color-banner">
-        <h2>Van street food tot fine dining</h2>
-        <p>FlavorHub brengt recepten, culturen en mensen samen op één kleurrijke plek.</p>
-    </section>
-</main>
+        <!-- 1: Supreme Pigment 6-Panel FW24 -->
+        <div class="product-card reveal">
+            <span class="card-label label-drop">New Drop</span>
+            <div class="product-img">
+                <div class="product-img-inner">🧢</div>
+                <div class="product-overlay"><button class="overlay-btn">Add to Cart</button></div>
+                <div class="stockx-tag">StockX: <span>€85</span></div>
+            </div>
+            <div class="product-info">
+                <div class="product-brand">Supreme</div>
+                <div class="product-name">Pigment Coated Canvas S Logo 6-Panel FW24</div>
+                <div class="product-footer">
+                    <span class="product-price">€76 <span class="product-retail">Retail €52</span></span>
+                    <span class="product-stock">3 left</span>
+                </div>
+            </div>
+        </div>
 
+        <!-- 2: Supreme × TNF RTG Backpack -->
+        <div class="product-card reveal" style="transition-delay:0.1s">
+            <span class="card-label label-collab">Collab</span>
+            <div class="product-img">
+                <div class="product-img-inner">🎒</div>
+                <div class="product-overlay"><button class="overlay-btn">Add to Cart</button></div>
+                <div class="stockx-tag">StockX: <span>€255</span></div>
+            </div>
+            <div class="product-info">
+                <div class="product-brand">Supreme × The North Face</div>
+                <div class="product-name">RTG Backpack Bright Red SS20</div>
+                <div class="product-footer">
+                    <span class="product-price">€255</span>
+                    <span class="product-stock">1 left</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3: Supreme Dead Prez Bandana -->
+        <div class="product-card reveal" style="transition-delay:0.2s">
+            <span class="card-label label-rare">Rare Find</span>
+            <div class="product-img">
+                <div class="product-img-inner">🧣</div>
+                <div class="product-overlay"><button class="overlay-btn">Add to Cart</button></div>
+                <div class="stockx-tag">StockX: <span>€225</span></div>
+            </div>
+            <div class="product-info">
+                <div class="product-brand">Supreme</div>
+                <div class="product-name">Dead Prez RBG Bandana FW19</div>
+                <div class="product-footer">
+                    <span class="product-price">€225</span>
+                    <span class="product-stock">2 left</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4: Supreme Backpack Pink SS25 -->
+        <div class="product-card reveal" style="transition-delay:0.3s">
+            <span class="card-label label-drop">SS25</span>
+            <div class="product-img">
+                <div class="product-img-inner">🎽</div>
+                <div class="product-overlay"><button class="overlay-btn">Add to Cart</button></div>
+                <div class="stockx-tag">StockX: <span>€246</span></div>
+            </div>
+            <div class="product-info">
+                <div class="product-brand">Supreme</div>
+                <div class="product-name">Backpack Light Pink SS25</div>
+                <div class="product-footer">
+                    <span class="product-price">€246</span>
+                    <span class="product-stock available">In stock</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5: Supreme 3D Logo Shoulder Bag -->
+        <div class="product-card reveal" style="transition-delay:0.05s">
+            <span class="card-label label-rare">Rare Find</span>
+            <div class="product-img">
+                <div class="product-img-inner">👜</div>
+                <div class="product-overlay"><button class="overlay-btn">Add to Cart</button></div>
+                <div class="stockx-tag">StockX: <span>€89</span></div>
+            </div>
+            <div class="product-info">
+                <div class="product-brand">Supreme</div>
+                <div class="product-name">3D Logo Shoulder Bag Blue FW23</div>
+                <div class="product-footer">
+                    <span class="product-price">€89</span>
+                    <span class="product-stock">4 left</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6: Palace Surplus 5-Panel SS24 -->
+        <div class="product-card reveal" style="transition-delay:0.15s">
+            <span class="card-label label-drop">Palace</span>
+            <div class="product-img">
+                <div class="product-img-inner">🧢</div>
+                <div class="product-overlay"><button class="overlay-btn">Add to Cart</button></div>
+                <div class="stockx-tag">StockX: <span>€42</span></div>
+            </div>
+            <div class="product-info">
+                <div class="product-brand">Palace Skateboards</div>
+                <div class="product-name">Surplus 5-Panel Yellow Camo SS24</div>
+                <div class="product-footer">
+                    <span class="product-price">€42</span>
+                    <span class="product-stock available">In stock</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7: Supreme × Fox Racing DMX V1 Helmet -->
+        <div class="product-card reveal" style="transition-delay:0.25s">
+            <span class="card-label label-collab">Collab</span>
+            <div class="product-img">
+                <div class="product-img-inner">🏍️</div>
+                <div class="product-overlay"><button class="overlay-btn">Add to Cart</button></div>
+                <div class="stockx-tag">StockX: <span>€480</span></div>
+            </div>
+            <div class="product-info">
+                <div class="product-brand">Supreme × Fox Racing</div>
+                <div class="product-name">DMX V1 Helmet FW25 — Gray Camo</div>
+                <div class="product-footer">
+                    <span class="product-price">€480</span>
+                    <span class="product-stock">1 left</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8: Supreme CDG Harold Hunter Baseball Shirt -->
+        <div class="product-card reveal" style="transition-delay:0.35s">
+            <span class="card-label label-sold">Archive</span>
+            <div class="product-img">
+                <div class="product-img-inner">🏆</div>
+                <div class="product-overlay"><button class="overlay-btn">Make Offer</button></div>
+                <div class="stockx-tag">StockX: <span>€555</span></div>
+            </div>
+            <div class="product-info">
+                <div class="product-brand">Supreme × CDG</div>
+                <div class="product-name">Harold Hunter Baseball Shirt SS14</div>
+                <div class="product-footer">
+                    <span class="product-price">€555</span>
+                    <span class="product-stock">1 left</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- STORY -->
+<div class="story">
+    <div class="story-visual">🏴</div>
+    <div class="story-content reveal">
+        <span class="section-tag">— Our philosophy</span>
+        <h2 class="story-quote">
+            Niet iedereen mag <em>rare</em> dragen.
+        </h2>
+        <p class="story-body">
+            VLTG is geen gewone webshop. We curate elk stuk persoonlijk — direct van Japan, New York, en Parijs. Geen bots, geen bussen. Puur human network. Als het hier staat, is het echt. Als het weg is, is het weg.
+        </p>
+        <a href="#" class="story-link">Lees ons verhaal</a>
+    </div>
+</div>
+
+<!-- CATEGORIES -->
+<section class="categories">
+    <span class="section-tag reveal">— Shop by category</span>
+    <h2 class="section-title reveal">BROWSE<br>THE RANGE</h2>
+    <div class="cat-grid">
+        <div class="cat-item reveal">
+            <div class="cat-inner">
+                <div class="cat-emoji">🧢</div>
+                <div class="cat-bg"></div>
+                <div class="cat-info">
+                    <span class="cat-name">Headwear</span>
+                    <span class="cat-count">Supreme · Palace · WTAPS</span>
+                </div>
+            </div>
+        </div>
+        <div class="cat-item reveal" style="transition-delay:0.1s">
+            <div class="cat-inner">
+                <div class="cat-emoji">🎒</div>
+                <div class="cat-bg"></div>
+                <div class="cat-info">
+                    <span class="cat-name">Bags</span>
+                    <span class="cat-count">Supreme × TNF · Porter · KITH</span>
+                </div>
+            </div>
+        </div>
+        <div class="cat-item reveal" style="transition-delay:0.2s">
+            <div class="cat-inner">
+                <div class="cat-emoji">🧣</div>
+                <div class="cat-bg"></div>
+                <div class="cat-info">
+                    <span class="cat-name">Scarves & Bandanas</span>
+                    <span class="cat-count">Supreme · CDG · Junya</span>
+                </div>
+            </div>
+        </div>
+        <div class="cat-item reveal" style="transition-delay:0.05s">
+            <div class="cat-inner">
+                <div class="cat-emoji">📿</div>
+                <div class="cat-bg"></div>
+                <div class="cat-info">
+                    <span class="cat-name">Jewelry</span>
+                    <span class="cat-count">Supreme · CDG · Undercover</span>
+                </div>
+            </div>
+        </div>
+        <div class="cat-item reveal" style="transition-delay:0.15s">
+            <div class="cat-inner">
+                <div class="cat-emoji">🕶️</div>
+                <div class="cat-bg"></div>
+                <div class="cat-info">
+                    <span class="cat-name">Eyewear</span>
+                    <span class="cat-count">Gentle Monster · WTAPS · CDG</span>
+                </div>
+            </div>
+        </div>
+        <div class="cat-item reveal" style="transition-delay:0.25s">
+            <div class="cat-inner">
+                <div class="cat-emoji">🏆</div>
+                <div class="cat-bg"></div>
+                <div class="cat-info">
+                    <span class="cat-name">Archive Pieces</span>
+                    <span class="cat-count">Pre-2020 Grails · Collab Only</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- DROP ALERT -->
+<div class="alert-section">
+    <div class="reveal">
+        <h2 class="alert-title">NOOIT EEN DROP MISSEN.</h2>
+        <p class="alert-sub">
+            Meld je aan voor drop alerts. Wij sturen je een notificatie 10 minuten voor elke exclusive release. Geen spam. Alleen drops die tellen.
+        </p>
+    </div>
+    <div class="alert-form reveal">
+        <input type="email" class="alert-input" placeholder="jouw@email.com" />
+        <input type="text" class="alert-input" placeholder="Instagram handle (optioneel)" />
+        <button class="alert-btn">Drop Alert Activeren →</button>
+        <span class="alert-note">// NO SPAM. UNSUBSCRIBE ANYTIME. REAL DROPS ONLY.</span>
+    </div>
+</div>
+
+<!-- FOOTER -->
 <footer>
-    <p>© 2026 FlavorHub — Made with flavor 🌶️</p>
+    <div class="footer-top">
+        <div>
+            <div class="footer-logo">VLT<span>G</span></div>
+            <p class="footer-desc">Rare streetwear accessories. Curated globally. Shipped worldwide. Authenticated always.</p>
+        </div>
+        <div>
+            <div class="footer-col-title">Shop</div>
+            <ul class="footer-links">
+                <li><a href="#">New Drops</a></li>
+                <li><a href="#">Archive</a></li>
+                <li><a href="#">Headwear</a></li>
+                <li><a href="#">Bags</a></li>
+                <li><a href="#">Jewelry</a></li>
+            </ul>
+        </div>
+        <div>
+            <div class="footer-col-title">Info</div>
+            <ul class="footer-links">
+                <li><a href="#">Our Story</a></li>
+                <li><a href="#">Authentication</a></li>
+                <li><a href="#">Shipping</a></li>
+                <li><a href="#">Returns</a></li>
+                <li><a href="#">FAQ</a></li>
+            </ul>
+        </div>
+        <div>
+            <div class="footer-col-title">Contact</div>
+            <ul class="footer-links">
+                <li><a href="#">drops@vltg.store</a></li>
+                <li><a href="#">@vltg.store</a></li>
+                <li><a href="#">Eindhoven, NL</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <span class="footer-copy">© 2025 VLTG — All rights reserved. All pieces authenticated.</span>
+        <div class="footer-socials">
+            <a href="#" class="social-link">IG</a>
+            <a href="#" class="social-link">TW</a>
+            <a href="#" class="social-link">TK</a>
+        </div>
+    </div>
 </footer>
+
+<script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+    function animateCursor() {
+        cursor.style.left = mx + 'px';
+        cursor.style.top = my + 'px';
+        rx += (mx - rx) * 0.12;
+        ry += (my - ry) * 0.12;
+        ring.style.left = rx + 'px';
+        ring.style.top = ry + 'px';
+        requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+
+    // Countdown
+    function updateCountdown() {
+        const el = document.getElementById('countdownDisplay');
+        if (!el) return;
+        const parts = el.textContent.split(':').map(Number);
+        let s = parts[0]*3600 + parts[1]*60 + parts[2];
+        s = s > 0 ? s - 1 : 86399;
+        const h = String(Math.floor(s/3600)).padStart(2,'0');
+        const m = String(Math.floor((s%3600)/60)).padStart(2,'0');
+        const sec = String(s%60).padStart(2,'0');
+        el.textContent = `${h}:${m}:${sec}`;
+    }
+    setInterval(updateCountdown, 1000);
+
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    reveals.forEach(el => io.observe(el));
+</script>
 </body>
 </html>
