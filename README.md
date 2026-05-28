@@ -85,3 +85,4 @@ project-folder/
 
 Gemaakt voor oefening en learning purposes.
 https://claude.ai/share/24259245-418c-46c3-91b7-ae5657cfedb1
+https://chatgpt.com/share/6a18483e-50dc-83eb-9e5f-2b7b6bfcac45

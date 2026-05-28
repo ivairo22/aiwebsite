@@ -5,1011 +5,833 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>VLTG — Rare Streetwear Accessories</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,900;1,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <style>
         :root {
-            --black: #080808;
-            --white: #f0ece3;
-            --acid: #c8ff00;
-            --rust: #d94f2b;
-            --steel: #2a2a2a;
-            --muted: #555;
-            --border: rgba(240,236,227,0.1);
+            --ink:   #080808;
+            --cream: #f0e8d0;
+            --gold:  #c9a227;
+            --volt:  #b5ff00;
+            --red:   #bf2c24;
+            --smoke: #161616;
+            --dim:   #2e2e2e;
+            --muted: #5a5a5a;
+            --line:  rgba(240,232,208,.09);
         }
 
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
-
+        *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+        html { scroll-behavior:smooth; }
         body {
-            background: var(--black);
-            color: var(--white);
-            font-family: 'Space Mono', monospace;
-            cursor: none;
-            overflow-x: hidden;
+            background:var(--ink); color:var(--cream);
+            font-family:'DM Mono',monospace;
+            overflow-x:hidden; cursor:none;
         }
 
-        /* Custom Cursor */
-        .cursor {
-            position: fixed;
-            width: 12px; height: 12px;
-            background: var(--acid);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            transform: translate(-50%, -50%);
-            transition: transform 0.1s, width 0.2s, height 0.2s;
-            mix-blend-mode: difference;
+        /* ── CURSOR ── */
+        #cur {
+            position:fixed; width:10px; height:10px;
+            background:var(--volt); border-radius:50%;
+            pointer-events:none; z-index:9999;
+            transform:translate(-50%,-50%);
+            mix-blend-mode:difference;
         }
-        .cursor-ring {
-            position: fixed;
-            width: 36px; height: 36px;
-            border: 1px solid var(--acid);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9998;
-            transform: translate(-50%, -50%);
-            transition: transform 0.18s ease, width 0.25s, height 0.25s;
-            mix-blend-mode: difference;
-        }
-        body:has(a:hover) .cursor { width: 20px; height: 20px; }
-        body:has(a:hover) .cursor-ring { width: 56px; height: 56px; }
-
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-            pointer-events: none;
-            z-index: 1000;
-            opacity: 0.35;
+        #cur-r {
+            position:fixed; width:30px; height:30px;
+            border:1px solid var(--gold); border-radius:50%;
+            pointer-events:none; z-index:9998;
+            transform:translate(-50%,-50%);
+            mix-blend-mode:difference;
         }
 
+        /* ── GRAIN ── */
+        body::after {
+            content:''; position:fixed; inset:0; pointer-events:none; z-index:900;
+            background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)' opacity='.035'/%3E%3C/svg%3E");
+            opacity:.5;
+        }
+
+        /* ── NAV ── */
         nav {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            z-index: 900;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 24px 48px;
-            border-bottom: 1px solid var(--border);
-            backdrop-filter: blur(12px);
-            background: rgba(8,8,8,0.7);
+            position:fixed; top:0; left:0; right:0; z-index:700;
+            display:flex; align-items:center; justify-content:space-between;
+            padding:18px 56px;
+            background:rgba(8,8,8,.84); backdrop-filter:blur(20px);
+            border-bottom:1px solid var(--line);
         }
-        .nav-logo {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 2rem;
-            letter-spacing: 0.25em;
-            color: var(--white);
-            text-decoration: none;
+        .logo {
+            font-family:'Bebas Neue',sans-serif;
+            font-size:2rem; letter-spacing:.28em;
+            color:var(--cream); text-decoration:none;
         }
-        .nav-logo span { color: var(--acid); }
-        .nav-links { display: flex; gap: 32px; list-style: none; }
+        .logo em { font-style:normal; color:var(--gold); }
+        .nav-links { display:flex; gap:34px; list-style:none; }
         .nav-links a {
-            font-size: 0.7rem;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: var(--muted);
-            text-decoration: none;
-            transition: color 0.2s;
+            font-size:.6rem; letter-spacing:.22em; text-transform:uppercase;
+            color:var(--muted); text-decoration:none; transition:color .2s;
         }
-        .nav-links a:hover { color: var(--acid); }
-        .nav-drop {
-            font-size: 0.65rem;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            background: var(--acid);
-            color: var(--black);
-            padding: 8px 18px;
-            font-weight: 700;
-            cursor: none;
-            border: none;
-            font-family: 'Space Mono', monospace;
-            transition: background 0.2s;
+        .nav-links a:hover { color:var(--volt); }
+        .nav-cta {
+            font-family:'DM Mono',monospace; font-size:.6rem;
+            letter-spacing:.16em; text-transform:uppercase;
+            background:var(--gold); color:var(--ink);
+            border:none; padding:8px 20px; font-weight:700; cursor:none;
+            transition:background .2s;
         }
-        .nav-drop:hover { background: #e0ff55; }
+        .nav-cta:hover { background:#dbb43a; }
 
+        /* ── HERO ── */
         .hero {
-            min-height: 100vh;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            padding-top: 80px;
-            position: relative;
-            overflow: hidden;
+            min-height:100vh;
+            display:grid; grid-template-columns:52% 48%;
+            padding-top:68px; overflow:hidden; position:relative;
         }
-        .hero-left {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 80px 48px 80px 80px;
-            position: relative;
-            z-index: 2;
+        .hero::before {
+            content:''; position:absolute;
+            right:48%; top:0; width:1px; height:100%;
+            background:linear-gradient(to bottom,transparent,var(--gold) 30%,var(--gold) 70%,transparent);
+            opacity:.12;
         }
-        .hero-tag {
-            font-size: 0.65rem;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            color: var(--acid);
-            margin-bottom: 24px;
-            opacity: 0;
-            animation: fadeUp 0.8s 0.2s forwards;
+
+        .hero-l {
+            display:flex; flex-direction:column; justify-content:center;
+            padding:80px 52px 80px 72px; z-index:2;
         }
+        .hero-eyebrow {
+            display:flex; align-items:center; gap:14px;
+            font-size:.56rem; letter-spacing:.36em; text-transform:uppercase;
+            color:var(--gold); margin-bottom:26px;
+            opacity:0; animation:rise .7s .1s forwards;
+        }
+        .hero-eyebrow::before { content:''; width:26px; height:1px; background:var(--gold); }
+
         .hero-title {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: clamp(5rem, 9vw, 10rem);
-            line-height: 0.9;
-            letter-spacing: 0.02em;
-            opacity: 0;
-            animation: fadeUp 0.8s 0.4s forwards;
+            font-family:'Barlow Condensed',sans-serif;
+            font-size:clamp(5.5rem,10vw,11.5rem);
+            font-weight:900; line-height:.87; letter-spacing:-.01em;
+            opacity:0; animation:rise .8s .25s forwards;
         }
-        .hero-title .accent { color: var(--acid); display: block; }
-        .hero-title .stroke {
-            -webkit-text-stroke: 1px var(--white);
-            color: transparent;
+        .hero-title .plain { color:var(--cream); display:block; }
+        .hero-title .gold  { color:var(--gold);  display:block; }
+        .hero-title .out   { display:block; color:transparent; -webkit-text-stroke:1.5px var(--cream); }
+
+        .hero-desc {
+            margin-top:28px; max-width:370px;
+            font-size:.7rem; line-height:1.95; color:var(--muted);
+            opacity:0; animation:rise .7s .45s forwards;
         }
-        .hero-sub {
-            margin-top: 32px;
-            font-size: 0.75rem;
-            line-height: 1.8;
-            color: var(--muted);
-            max-width: 340px;
-            opacity: 0;
-            animation: fadeUp 0.8s 0.6s forwards;
+        .hero-btns {
+            margin-top:40px; display:flex; gap:12px;
+            opacity:0; animation:rise .7s .6s forwards;
         }
-        .hero-ctas {
-            margin-top: 48px;
-            display: flex;
-            gap: 16px;
-            opacity: 0;
-            animation: fadeUp 0.8s 0.8s forwards;
+        .btn-solid {
+            background:var(--volt); color:var(--ink);
+            font-family:'DM Mono',monospace; font-size:.62rem; font-weight:700;
+            letter-spacing:.15em; text-transform:uppercase;
+            padding:13px 32px; text-decoration:none; display:inline-block;
+            transition:transform .2s, background .2s;
         }
-        .btn-primary {
-            background: var(--acid);
-            color: var(--black);
-            font-family: 'Space Mono', monospace;
-            font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            padding: 14px 32px;
-            text-decoration: none;
-            transition: transform 0.2s, background 0.2s;
-            display: inline-block;
-        }
-        .btn-primary:hover { background: #d9f500; transform: translate(-2px,-2px); }
+        .btn-solid:hover { background:#c8ff22; transform:translate(-2px,-2px); }
         .btn-ghost {
-            background: transparent;
-            color: var(--white);
-            font-family: 'Space Mono', monospace;
-            font-size: 0.7rem;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            padding: 14px 32px;
-            text-decoration: none;
-            border: 1px solid var(--border);
-            transition: border-color 0.2s, color 0.2s;
-            display: inline-block;
+            background:transparent; color:var(--cream);
+            font-family:'DM Mono',monospace; font-size:.62rem;
+            letter-spacing:.15em; text-transform:uppercase;
+            padding:13px 32px; text-decoration:none; display:inline-block;
+            border:1px solid var(--line); transition:border-color .2s, color .2s;
         }
-        .btn-ghost:hover { border-color: var(--white); color: var(--acid); }
+        .btn-ghost:hover { border-color:var(--gold); color:var(--gold); }
 
-        .hero-stats {
-            display: flex;
-            gap: 40px;
-            margin-top: 64px;
-            padding-top: 40px;
-            border-top: 1px solid var(--border);
-            opacity: 0;
-            animation: fadeUp 0.8s 1s forwards;
+        .hero-timer {
+            margin-top:48px; padding-top:32px; border-top:1px solid var(--line);
+            display:flex; align-items:center; gap:18px;
+            opacity:0; animation:rise .7s .8s forwards;
         }
-        .stat-num {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 2.4rem;
-            color: var(--acid);
-            display: block;
+        .live-dot {
+            width:7px; height:7px; border-radius:50%;
+            background:var(--red); flex-shrink:0;
+            animation:blink 1.4s ease-in-out infinite;
         }
-        .stat-label {
-            font-size: 0.6rem;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: var(--muted);
+        @keyframes blink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.25;transform:scale(.55)} }
+        .timer-lbl { font-size:.54rem; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); }
+        .timer-val  { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; color:var(--volt); letter-spacing:.08em; }
+
+        @keyframes rise {
+            from { opacity:0; transform:translateY(28px); }
+            to   { opacity:1; transform:none; }
         }
 
-        .hero-right {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
+        /* ── HERO RIGHT – product stack ── */
+        .hero-r {
+            position:relative; overflow:hidden; background:#0e0e0e;
         }
-        .hero-visual {
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
-        .hero-bg-text {
-            position: absolute;
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 28vw;
-            line-height: 1;
-            color: rgba(200,255,0,0.03);
-            letter-spacing: -0.05em;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            white-space: nowrap;
-            pointer-events: none;
-            user-select: none;
-        }
-        .hero-cards {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .hero-card {
-            position: absolute;
-            background: var(--steel);
-            border: 1px solid var(--border);
-            padding: 16px;
-            transition: transform 0.4s ease;
-            animation: float 6s ease-in-out infinite;
-        }
-        .hero-card:nth-child(1) { width: 190px; top: 15%; left: 5%; animation-delay: 0s; }
-        .hero-card:nth-child(2) { width: 220px; top: 33%; left: 36%; animation-delay: -2s; }
-        .hero-card:nth-child(3) { width: 175px; bottom: 18%; left: 8%; animation-delay: -4s; }
-        .hero-card-img {
-            width: 100%;
-            aspect-ratio: 1;
-            background: #151515;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.8rem;
-            margin-bottom: 10px;
-            position: relative;
-            overflow: hidden;
-        }
-        .hero-card-img::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(200,255,0,0.06) 0%, transparent 60%);
-        }
-        .hero-card-name {
-            font-size: 0.6rem;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: var(--muted);
-            line-height: 1.4;
-        }
-        .hero-card-price {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.3rem;
-            color: var(--acid);
-            margin-top: 4px;
-        }
-        .sold-badge {
-            position: absolute;
-            top: 8px; right: 8px;
-            background: var(--rust);
-            font-size: 0.5rem;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            padding: 3px 7px;
-            font-weight: 700;
-            font-family: 'Space Mono', monospace;
-        }
-        .rare-badge {
-            position: absolute;
-            top: 8px; right: 8px;
-            background: var(--acid);
-            color: var(--black);
-            font-size: 0.5rem;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            padding: 3px 7px;
-            font-weight: 700;
-            font-family: 'Space Mono', monospace;
+        .hero-r-bg {
+            position:absolute; inset:0;
+            display:flex; align-items:center; justify-content:center;
+            font-family:'Bebas Neue',sans-serif;
+            font-size:24vw; color:rgba(201,162,39,.035);
+            letter-spacing:-.05em; user-select:none; pointer-events:none;
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            33% { transform: translateY(-12px) rotate(0.5deg); }
-            66% { transform: translateY(6px) rotate(-0.3deg); }
+        /* floating wrappers */
+        .fw {
+            position:absolute;
+            transition:transform .3s ease, z-index 0s;
         }
+        .fw:hover { transform:translateY(-8px) scale(1.03) !important; z-index:20; }
 
+        .fw1 { top:9%;  left:4%;  animation:fa 7s ease-in-out infinite; }
+        .fw2 { top:6%;  left:40%; animation:fb 8.5s ease-in-out infinite; }
+        .fw3 { top:44%; left:14%; animation:fc 6.5s ease-in-out infinite; }
+        .fw4 { top:50%; left:50%; animation:fa 9s ease-in-out infinite; }
+        .fw5 { top:74%; left:26%; animation:fb 7s ease-in-out infinite; }
+
+        @keyframes fa { 0%,100%{transform:translateY(0) rotate(-.4deg)} 50%{transform:translateY(-13px) rotate(.3deg)} }
+        @keyframes fb { 0%,100%{transform:translateY(0) rotate(.4deg)}  50%{transform:translateY(-10px) rotate(-.4deg)} }
+        @keyframes fc { 0%,100%{transform:translateY(0) rotate(-.3deg)} 60%{transform:translateY(-16px) rotate(.4deg)} }
+
+        .fcard {
+            background:var(--smoke); border:1px solid var(--line);
+            overflow:hidden; position:relative;
+        }
+        .fcard img {
+            display:block; width:100%; height:100%; object-fit:cover;
+            filter:contrast(1.06) saturate(.88);
+            transition:transform .5s ease;
+        }
+        .fw:hover .fcard img { transform:scale(1.07); }
+
+        .fc1 { width:196px; height:218px; }
+        .fc2 { width:166px; height:186px; }
+        .fc3 { width:188px; height:208px; }
+        .fc4 { width:152px; height:172px; }
+        .fc5 { width:140px; height:158px; }
+
+        .fbadge {
+            position:absolute; top:9px; left:9px;
+            font-family:'DM Mono',monospace;
+            font-size:.48rem; letter-spacing:.14em; text-transform:uppercase;
+            padding:3px 9px; font-weight:700;
+        }
+        .fb-gold  { background:var(--gold);  color:var(--ink); }
+        .fb-volt  { background:var(--volt);  color:var(--ink); }
+        .fb-red   { background:var(--red);   color:#fff; }
+        .fb-dark  { background:#1e1e1e;      color:var(--muted); border:1px solid var(--dim); }
+
+        .fmeta {
+            background:rgba(8,8,8,.92); padding:7px 10px;
+            border-top:1px solid var(--line);
+        }
+        .fmeta-name  { font-size:.5rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+        .fmeta-price { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; color:var(--gold); }
+
+        /* ── TICKER ── */
         .ticker {
-            background: var(--acid);
-            color: var(--black);
-            padding: 10px 0;
-            overflow: hidden;
+            background:var(--gold); color:var(--ink);
+            padding:8px 0; overflow:hidden;
         }
-        .ticker-inner {
-            display: flex;
-            white-space: nowrap;
-            animation: ticker 18s linear infinite;
+        .ticker-t {
+            display:flex; white-space:nowrap;
+            animation:roll 24s linear infinite;
         }
-        .ticker-item {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1rem;
-            letter-spacing: 0.2em;
-            padding: 0 48px;
+        .ti { font-family:'Bebas Neue',sans-serif; font-size:1rem; letter-spacing:.22em; padding:0 48px; }
+        .ts { opacity:.45; margin:0 4px; }
+        @keyframes roll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
+        /* ── CULTURE STRIP ── */
+        .cult {
+            display:grid; grid-template-columns:1fr 1fr 1fr;
+            gap:2px; height:320px;
         }
-        .ticker-dot { margin: 0 8px; opacity: 0.5; }
-        @keyframes ticker {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+        .ct {
+            position:relative; overflow:hidden; background:var(--dim);
+        }
+        .ct img {
+            width:100%; height:100%; object-fit:cover;
+            filter:grayscale(.45) contrast(1.1);
+            transition:transform .6s ease, filter .4s;
+        }
+        .ct:hover img { transform:scale(1.08); filter:grayscale(0) contrast(1.12); }
+        .ct-ov {
+            position:absolute; inset:0;
+            background:linear-gradient(to top, rgba(8,8,8,.88) 0%, transparent 55%);
+        }
+        .ct-lbl {
+            position:absolute; bottom:18px; left:20px;
+            font-family:'Barlow Condensed',sans-serif;
+            font-size:1.4rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+        }
+        .ct-lbl em { font-style:normal; color:var(--gold); }
+        .ct-sub {
+            position:absolute; bottom:8px; left:20px;
+            font-size:.5rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted);
         }
 
-        section { padding: 120px 80px; }
-        .section-tag {
-            font-size: 0.6rem;
-            letter-spacing: 0.35em;
-            text-transform: uppercase;
-            color: var(--acid);
-            margin-bottom: 16px;
-            display: block;
+        /* ── PRODUCTS ── */
+        .products { padding:104px 72px; }
+
+        .sec-hd {
+            display:flex; justify-content:space-between; align-items:flex-end;
+            margin-bottom:52px;
         }
-        .section-title {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: clamp(3rem, 5vw, 5.5rem);
-            line-height: 0.95;
-            letter-spacing: 0.03em;
+        .sec-tag { font-size:.56rem; letter-spacing:.35em; text-transform:uppercase; color:var(--gold); margin-bottom:10px; display:block; }
+        .sec-ttl {
+            font-family:'Barlow Condensed',sans-serif;
+            font-size:clamp(3.5rem,6vw,6.5rem);
+            font-weight:900; line-height:.9;
         }
 
-        .drops { background: var(--black); }
-        .drops-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-bottom: 64px;
-        }
-        .drops-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 2px;
-        }
-        .product-card {
-            background: var(--steel);
-            position: relative;
-            overflow: hidden;
-            cursor: none;
-        }
-        .product-card:hover .product-overlay { opacity: 1; }
-        .product-card:hover .product-img-inner { transform: scale(1.05); }
-        .product-img {
-            aspect-ratio: 3/4;
-            overflow: hidden;
-            position: relative;
-            background: #111;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .product-img-inner {
-            transition: transform 0.6s ease;
-            font-size: 4.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
-        }
-        .product-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(200,255,0,0.08);
-            opacity: 0;
-            transition: opacity 0.3s;
-            display: flex;
-            align-items: flex-end;
-            padding: 20px;
-        }
-        .overlay-btn {
-            background: var(--acid);
-            color: var(--black);
-            font-size: 0.65rem;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            font-weight: 700;
-            padding: 10px 20px;
-            font-family: 'Space Mono', monospace;
-            border: none;
-            cursor: none;
-            width: 100%;
-        }
-        .product-info { padding: 16px; }
-        .product-brand {
-            font-size: 0.55rem;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: var(--muted);
-        }
-        .product-name {
-            font-family: 'Syne', sans-serif;
-            font-size: 0.85rem;
-            font-weight: 700;
-            margin: 4px 0;
-            line-height: 1.3;
-        }
-        .product-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 8px;
-        }
-        .product-price {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.3rem;
-            color: var(--acid);
-        }
-        .product-retail {
-            font-size: 0.55rem;
-            color: var(--muted);
-            text-decoration: line-through;
-            margin-left: 4px;
-        }
-        .product-stock {
-            font-size: 0.55rem;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            color: var(--rust);
-        }
-        .product-stock.available { color: #4cff82; }
-        .card-label {
-            position: absolute;
-            top: 12px; left: 12px;
-            font-size: 0.5rem;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            padding: 4px 10px;
-            font-weight: 700;
-            z-index: 2;
-            font-family: 'Space Mono', monospace;
-        }
-        .label-drop { background: var(--rust); color: var(--white); }
-        .label-rare { background: var(--acid); color: var(--black); }
-        .label-collab { background: var(--white); color: var(--black); }
-        .label-sold { background: #333; color: var(--muted); }
-
-        /* StockX price tag */
-        .stockx-tag {
-            position: absolute;
-            bottom: 12px; left: 12px;
-            font-size: 0.5rem;
-            letter-spacing: 0.1em;
-            color: var(--muted);
-            font-family: 'Space Mono', monospace;
-            z-index: 2;
-        }
-        .stockx-tag span { color: var(--acid); }
-
-        .story {
-            background: var(--steel);
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-        .story-visual {
-            background: #111;
-            min-height: 600px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10rem;
-            position: relative;
-            overflow: hidden;
-        }
-        .story-visual::before {
-            content: 'RARE';
-            position: absolute;
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 12rem;
-            color: rgba(200,255,0,0.04);
-            letter-spacing: 0.1em;
-        }
-        .story-content {
-            padding: 80px 72px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .story-quote {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: clamp(2.5rem, 4vw, 4rem);
-            line-height: 1;
-            margin: 24px 0 32px;
-        }
-        .story-quote em {
-            font-style: normal;
-            -webkit-text-stroke: 1px var(--acid);
-            color: transparent;
-        }
-        .story-body {
-            font-size: 0.75rem;
-            line-height: 1.9;
-            color: var(--muted);
-            max-width: 400px;
-        }
-        .story-link {
-            margin-top: 40px;
-            font-size: 0.7rem;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: var(--acid);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .story-link::after { content: '→'; transition: transform 0.2s; }
-        .story-link:hover::after { transform: translateX(6px); }
-
-        .categories { background: var(--black); }
-        .cat-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2px;
-            margin-top: 48px;
-        }
-        .cat-item { position: relative; overflow: hidden; cursor: none; }
-        .cat-inner {
-            aspect-ratio: 4/3;
-            background: var(--steel);
-            display: flex;
-            align-items: flex-end;
-            padding: 24px;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.4s;
-        }
-        .cat-item:hover .cat-inner { transform: scale(1.02); }
-        .cat-emoji {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -60%);
-            font-size: 4rem;
-            opacity: 0.3;
-            transition: opacity 0.3s, transform 0.3s;
-        }
-        .cat-item:hover .cat-emoji { opacity: 0.6; transform: translate(-50%,-65%) scale(1.1); }
-        .cat-bg {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(to top, rgba(8,8,8,0.9) 0%, transparent 60%);
-        }
-        .cat-info { position: relative; z-index: 2; }
-        .cat-name {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.6rem;
-            letter-spacing: 0.05em;
-            display: block;
-        }
-        .cat-count {
-            font-size: 0.6rem;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: var(--muted);
+        .pgrid {
+            display:grid; grid-template-columns:repeat(4,1fr); gap:2px;
         }
 
-        .alert-section {
-            background: var(--acid);
-            padding: 80px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            align-items: center;
-            gap: 80px;
+        .pc {
+            background:var(--smoke); position:relative; overflow:hidden; cursor:none;
         }
-        .alert-title {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: clamp(3rem, 5vw, 5rem);
-            color: var(--black);
-            line-height: 0.95;
-        }
-        .alert-sub {
-            font-size: 0.75rem;
-            color: rgba(0,0,0,0.6);
-            margin-top: 16px;
-            line-height: 1.7;
-        }
-        .alert-form { display: flex; flex-direction: column; gap: 12px; }
-        .alert-input {
-            background: rgba(0,0,0,0.15);
-            border: 1px solid rgba(0,0,0,0.2);
-            color: var(--black);
-            font-family: 'Space Mono', monospace;
-            font-size: 0.75rem;
-            padding: 14px 20px;
-            outline: none;
-            transition: background 0.2s;
-            width: 100%;
-        }
-        .alert-input::placeholder { color: rgba(0,0,0,0.4); }
-        .alert-input:focus { background: rgba(0,0,0,0.25); }
-        .alert-btn {
-            background: var(--black);
-            color: var(--acid);
-            font-family: 'Space Mono', monospace;
-            font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            padding: 14px;
-            border: none;
-            cursor: none;
-            transition: background 0.2s;
-        }
-        .alert-btn:hover { background: #1a1a1a; }
-        .alert-note { font-size: 0.6rem; color: rgba(0,0,0,0.45); letter-spacing: 0.1em; }
+        .pc:hover .pc-img img { transform:scale(1.07); }
+        .pc:hover .pc-ov      { opacity:1; }
 
-        footer {
-            background: var(--steel);
-            padding: 64px 80px 40px;
-            border-top: 1px solid var(--border);
+        .pc-img {
+            aspect-ratio:3/4; overflow:hidden;
+            position:relative; background:#0f0f0f;
         }
-        .footer-top {
-            display: grid;
-            grid-template-columns: 1.5fr 1fr 1fr 1fr;
-            gap: 64px;
-            margin-bottom: 64px;
+        .pc-img img {
+            width:100%; height:100%; object-fit:cover;
+            transition:transform .55s ease;
+            filter:contrast(1.05) saturate(.92);
         }
-        .footer-logo {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 2.5rem;
-            letter-spacing: 0.2em;
-            color: var(--white);
-            margin-bottom: 16px;
-        }
-        .footer-logo span { color: var(--acid); }
-        .footer-desc { font-size: 0.7rem; line-height: 1.8; color: var(--muted); max-width: 240px; }
-        .footer-col-title {
-            font-size: 0.6rem;
-            letter-spacing: 0.25em;
-            text-transform: uppercase;
-            color: var(--acid);
-            margin-bottom: 20px;
-        }
-        .footer-links { list-style: none; display: flex; flex-direction: column; gap: 12px; }
-        .footer-links a {
-            font-size: 0.7rem;
-            color: var(--muted);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-        .footer-links a:hover { color: var(--white); }
-        .footer-bottom {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 32px;
-            border-top: 1px solid var(--border);
-        }
-        .footer-copy { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.1em; }
-        .footer-socials { display: flex; gap: 20px; }
-        .social-link {
-            width: 36px; height: 36px;
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            text-decoration: none;
-            color: var(--muted);
-            transition: border-color 0.2s, color 0.2s;
-        }
-        .social-link:hover { border-color: var(--acid); color: var(--acid); }
 
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to   { opacity: 1; transform: translateY(0); }
+        /* fallback: if image fails → show a dark tiled pattern (no emoji) */
+        .pc-img .fallback {
+            display:none; width:100%; height:100%;
+            background:repeating-linear-gradient(
+                    45deg,
+                    #161616 0px, #161616 10px,
+                    #111 10px, #111 20px
+            );
+            align-items:center; justify-content:center;
         }
-        .reveal {
-            opacity: 0;
-            transform: translateY(40px);
-            transition: opacity 0.7s ease, transform 0.7s ease;
-        }
-        .reveal.visible { opacity: 1; transform: none; }
+        .pc-img img.broken + .fallback { display:flex; }
 
-        .countdown-bar {
-            background: rgba(8,8,8,0.9);
-            border: 1px solid var(--border);
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-top: 32px;
-            width: fit-content;
-            opacity: 0;
-            animation: fadeUp 0.8s 1.2s forwards;
+        .pc-ov {
+            position:absolute; inset:0;
+            background:rgba(201,162,39,.07);
+            opacity:0; transition:opacity .3s;
+            display:flex; align-items:flex-end; padding:16px;
         }
-        .countdown-label {
-            font-size: 0.6rem;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: var(--muted);
+        .pc-btn {
+            background:var(--volt); color:var(--ink);
+            font-family:'DM Mono',monospace; font-size:.6rem; font-weight:700;
+            letter-spacing:.14em; text-transform:uppercase;
+            border:none; padding:10px; width:100%; cursor:none;
         }
-        .countdown-timer {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.4rem;
-            color: var(--acid);
-            letter-spacing: 0.1em;
+
+        .plbl {
+            position:absolute; top:11px; left:11px; z-index:3;
+            font-family:'DM Mono',monospace;
+            font-size:.48rem; letter-spacing:.14em; text-transform:uppercase;
+            padding:4px 9px; font-weight:700;
         }
-        .pulse {
-            width: 6px; height: 6px;
-            background: var(--rust);
-            border-radius: 50%;
-            animation: pulse 1.5s ease-in-out infinite;
-            flex-shrink: 0;
+        .l-new    { background:var(--red);  color:#fff; }
+        .l-rare   { background:var(--volt); color:var(--ink); }
+        .l-collab { background:var(--gold); color:var(--ink); }
+        .l-arch   { background:#202020; color:var(--muted); border:1px solid var(--dim); }
+
+        .psx {
+            position:absolute; bottom:11px; right:11px; z-index:3;
+            font-size:.46rem; letter-spacing:.1em; color:var(--muted); text-align:right;
         }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(0.6); }
+        .psx strong { color:var(--gold); font-weight:400; }
+
+        .pc-info { padding:13px 15px 17px; }
+        .pc-brand { font-size:.5rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); }
+        .pc-name  {
+            font-family:'Barlow Condensed',sans-serif;
+            font-size:1.05rem; font-weight:700; margin:4px 0 9px; line-height:1.2;
         }
+        .pc-ft  { display:flex; justify-content:space-between; align-items:center; }
+        .pc-price {
+            font-family:'Bebas Neue',sans-serif; font-size:1.45rem; color:var(--gold);
+        }
+        .pc-price sub { font-size:.85rem; color:var(--muted); text-decoration:line-through; margin-left:3px; }
+        .pc-stock     { font-size:.5rem; letter-spacing:.15em; text-transform:uppercase; color:var(--red); }
+        .pc-stock.ok  { color:#58ff88; }
+
+        /* ── QUOTE BLOCK ── */
+        .qb {
+            display:grid; grid-template-columns:1fr 1fr; background:var(--smoke);
+        }
+        .qv {
+            min-height:540px; position:relative; overflow:hidden; background:#0d0d0d;
+        }
+        .qv img {
+            width:100%; height:100%; object-fit:cover;
+            filter:grayscale(.5) contrast(1.1);
+        }
+        .qv-ov {
+            position:absolute; inset:0;
+            background:linear-gradient(90deg, transparent 50%, var(--smoke) 100%);
+        }
+        .qt {
+            padding:76px 64px;
+            display:flex; flex-direction:column; justify-content:center;
+        }
+        .q-ey  { font-size:.52rem; letter-spacing:.3em; text-transform:uppercase; color:var(--gold); margin-bottom:22px; }
+        .q-ttl {
+            font-family:'Barlow Condensed',sans-serif;
+            font-size:clamp(2.6rem,4.2vw,4.8rem);
+            font-weight:900; line-height:.95; margin-bottom:28px;
+        }
+        .q-ttl em { font-style:normal; -webkit-text-stroke:1.5px var(--gold); color:transparent; }
+        .q-body { font-size:.7rem; line-height:1.95; color:var(--muted); max-width:380px; }
+        .q-link {
+            margin-top:32px; display:inline-flex; align-items:center; gap:12px;
+            font-size:.62rem; letter-spacing:.2em; text-transform:uppercase;
+            color:var(--gold); text-decoration:none; transition:gap .2s;
+        }
+        .q-link:hover { gap:20px; }
+        .q-pills {
+            margin-top:42px; display:flex; gap:22px;
+            padding-top:32px; border-top:1px solid var(--line);
+        }
+        .q-pill {
+            display:flex; align-items:center; gap:6px;
+            font-size:.56rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted);
+        }
+        .q-pill-dot {
+            width:6px; height:6px; border-radius:50%; background:var(--gold); flex-shrink:0;
+        }
+
+        /* ── NAMES SECTION ── */
+        .names-sec { padding:96px 72px; overflow:hidden; }
+        .names-inner { display:grid; grid-template-columns:1fr 1fr; gap:72px; align-items:center; }
+        .names-copy { }
+        .names-wall {
+            overflow:hidden; max-height:420px;
+            border-left:2px solid var(--gold); padding-left:24px;
+            -webkit-mask:linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+            mask:linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+        }
+        .names-track {
+            display:flex; flex-direction:column; gap:2px;
+            animation:scrollUp 18s linear infinite;
+        }
+        .names-track:hover { animation-play-state:paused; }
+        @keyframes scrollUp { 0%{transform:translateY(0)} 100%{transform:translateY(-50%)} }
+
+        .n-item {
+            font-family:'Barlow Condensed',sans-serif;
+            font-size:2.8rem; font-weight:900; line-height:1.05;
+            letter-spacing:.02em; white-space:nowrap;
+            color:transparent; -webkit-text-stroke:1px var(--dim);
+            transition:color .25s, -webkit-text-stroke .25s;
+            padding:2px 0; cursor:default;
+        }
+        .n-item:hover {
+            color:var(--cream); -webkit-text-stroke:1px transparent;
+        }
+        .n-item.active { color:var(--gold); -webkit-text-stroke:0px transparent; }
+
+        /* category pill next to name */
+        .n-cat {
+            font-family:'DM Mono',monospace;
+            font-size:.44rem; letter-spacing:.14em; text-transform:uppercase;
+            background:var(--dim); color:var(--muted);
+            padding:2px 7px; margin-left:10px; vertical-align:middle;
+        }
+        .n-cat.rap  { background:rgba(181,255,0,.1);  color:var(--volt); }
+        .n-cat.foot { background:rgba(201,162,39,.1); color:var(--gold); }
+        .n-cat.art  { background:rgba(191,44,36,.1);  color:#e05a52;    }
+
+        /* ── NEWSLETTER ── */
+        .nl {
+            background:var(--gold); padding:76px 80px;
+            display:grid; grid-template-columns:1fr 1fr; gap:72px; align-items:center;
+        }
+        .nl-ttl {
+            font-family:'Barlow Condensed',sans-serif;
+            font-size:clamp(2.8rem,4.8vw,5rem); font-weight:900; line-height:.9; color:var(--ink);
+        }
+        .nl-sub { font-size:.7rem; line-height:1.8; color:rgba(0,0,0,.52); margin-top:14px; }
+        .nl-form { display:flex; flex-direction:column; gap:9px; }
+        .nl-in {
+            background:rgba(0,0,0,.12); border:1px solid rgba(0,0,0,.18);
+            color:var(--ink); font-family:'DM Mono',monospace; font-size:.7rem;
+            padding:12px 17px; outline:none; transition:background .2s;
+        }
+        .nl-in::placeholder { color:rgba(0,0,0,.36); }
+        .nl-in:focus { background:rgba(0,0,0,.22); }
+        .nl-btn {
+            background:var(--ink); color:var(--volt);
+            font-family:'DM Mono',monospace; font-size:.62rem; font-weight:700;
+            letter-spacing:.15em; text-transform:uppercase;
+            padding:13px; border:none; cursor:none; transition:background .2s;
+        }
+        .nl-btn:hover { background:#181818; }
+        .nl-note { font-size:.52rem; color:rgba(0,0,0,.38); letter-spacing:.1em; }
+
+        /* ── FOOTER ── */
+        footer { background:var(--smoke); padding:60px 72px 38px; border-top:1px solid var(--line); }
+        .ft-grid { display:grid; grid-template-columns:1.6fr 1fr 1fr 1fr; gap:52px; margin-bottom:52px; }
+        .ft-logo {
+            font-family:'Bebas Neue',sans-serif;
+            font-size:2.4rem; letter-spacing:.22em; color:var(--cream); margin-bottom:12px;
+        }
+        .ft-logo em { font-style:normal; color:var(--gold); }
+        .ft-desc { font-size:.65rem; line-height:1.9; color:var(--muted); max-width:225px; }
+        .ft-h { font-size:.55rem; letter-spacing:.25em; text-transform:uppercase; color:var(--gold); margin-bottom:16px; }
+        .ft-ul { list-style:none; display:flex; flex-direction:column; gap:9px; }
+        .ft-ul a { font-size:.65rem; color:var(--muted); text-decoration:none; transition:color .2s; }
+        .ft-ul a:hover { color:var(--cream); }
+        .ft-bot { display:flex; justify-content:space-between; align-items:center; padding-top:26px; border-top:1px solid var(--line); }
+        .ft-copy { font-size:.56rem; color:var(--muted); letter-spacing:.1em; }
+        .ft-soc { display:flex; gap:12px; }
+        .soc-a {
+            width:32px; height:32px; border:1px solid var(--line);
+            display:flex; align-items:center; justify-content:center;
+            font-size:.72rem; text-decoration:none; color:var(--muted);
+            transition:border-color .2s, color .2s;
+        }
+        .soc-a:hover { border-color:var(--gold); color:var(--gold); }
+
+        /* ── REVEAL ── */
+        .rv { opacity:0; transform:translateY(34px); transition:opacity .7s ease, transform .7s ease; }
+        .rv.on { opacity:1; transform:none; }
     </style>
 </head>
 <body>
 
-<div class="cursor" id="cursor"></div>
-<div class="cursor-ring" id="cursorRing"></div>
+<div id="cur"></div>
+<div id="cur-r"></div>
 
 <!-- NAV -->
 <nav>
-    <a class="nav-logo" href="#">VLT<span>G</span></a>
+    <a class="logo" href="#">VLT<em>G</em></a>
     <ul class="nav-links">
         <li><a href="#">Drops</a></li>
         <li><a href="#">Accessories</a></li>
+        <li><a href="#">Culture</a></li>
         <li><a href="#">Archive</a></li>
-        <li><a href="#">About</a></li>
     </ul>
-    <button class="nav-drop">Next Drop ↗</button>
+    <button class="nav-cta">Next Drop ↗</button>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-    <div class="hero-left">
-        <span class="hero-tag">— Rare. Limited. Uncompromising.</span>
+    <div class="hero-l">
+        <div class="hero-eyebrow">Rare. Curated. Certified.</div>
         <h1 class="hero-title">
-            <span>THE</span>
-            <span class="accent">RARE</span>
-            <span class="stroke">PIECES</span>
+            <span class="plain">THE</span>
+            <span class="gold">RARE</span>
+            <span class="out">PIECES</span>
         </h1>
-        <p class="hero-sub">
-            Handpicked streetwear accessories van de meest exclusieve drops worldwide. Geen reproductions. Geen fakes. Alleen het echte werk.
+        <p class="hero-desc">
+            Handpicked streetwear accessories van de meest exclusieve drops worldwide. Zoals Pharrell, Carti, Ronaldo en Mbappé ze dragen. Geen reproductions. Geen fakes.
         </p>
-
-        <div class="countdown-bar">
-            <div class="pulse"></div>
-            <span class="countdown-label">Next drop in</span>
-            <span class="countdown-timer" id="countdownDisplay">02:14:37</span>
+        <div class="hero-btns">
+            <a href="#products" class="btn-solid">Shop de Drop</a>
+            <a href="#" class="btn-ghost">Bekijk Archief</a>
         </div>
-
-        <div class="hero-ctas">
-            <a href="#" class="btn-primary">Shop Current Drop</a>
-            <a href="#" class="btn-ghost">View Archive</a>
-        </div>
-
-        <div class="hero-stats">
-            <div>
-                <span class="stat-num">847</span>
-                <span class="stat-label">Pieces Sold</span>
-            </div>
-            <div>
-                <span class="stat-num">12K</span>
-                <span class="stat-label">Members</span>
-            </div>
-            <div>
-                <span class="stat-num">99%</span>
-                <span class="stat-label">Authentic</span>
-            </div>
+        <div class="hero-timer">
+            <div class="live-dot"></div>
+            <span class="timer-lbl">Next drop in</span>
+            <span class="timer-val" id="tval">03:44:18</span>
         </div>
     </div>
 
-    <div class="hero-right">
-        <div class="hero-visual">
-            <div class="hero-bg-text">VLT</div>
-            <div class="hero-cards">
-                <!-- Real product 1 -->
-                <div class="hero-card">
-                    <div class="hero-card-img">
-                        🧢
-                        <span class="sold-badge">Sold Out</span>
-                    </div>
-                    <div class="hero-card-name">Supreme S Logo 6-Panel FW24</div>
-                    <div class="hero-card-price">€76</div>
-                </div>
-                <!-- Real product 2 -->
-                <div class="hero-card">
-                    <div class="hero-card-img">
-                        🎒
-                        <span class="rare-badge">1 of 5</span>
-                    </div>
-                    <div class="hero-card-name">Supreme × TNF RTG Backpack SS20</div>
-                    <div class="hero-card-price">€255</div>
-                </div>
-                <!-- Real product 3 -->
-                <div class="hero-card">
-                    <div class="hero-card-img">🧣</div>
-                    <div class="hero-card-name">Dead Prez RBG Bandana FW19</div>
-                    <div class="hero-card-price">€225</div>
-                </div>
+    <!-- floating product cards -->
+    <div class="hero-r">
+        <div class="hero-r-bg">RARE</div>
+
+        <!-- 1: Supreme Beanie -->
+        <div class="fw fw1">
+            <div class="fcard fc1">
+                <img src="https://images.stockx.com/images/Supreme-Box-Logo-New-Era-FW24-Black.jpg?fit=fill&bg=FFFFFF&w=500&h=500&auto=format,compress&q=90&dpr=2"
+                     alt="Supreme Beanie"
+                     onerror="this.style.opacity='0'" loading="lazy" />
+                <div class="fbadge fb-red">Sold Out</div>
+            </div>
+            <div class="fmeta">
+                <div class="fmeta-name">Supreme × New Era FW24</div>
+                <div class="fmeta-price">€89</div>
             </div>
         </div>
+
+        <!-- 2: Supreme TNF Backpack -->
+        <div class="fw fw2">
+            <div class="fcard fc2">
+                <img src="https://images.stockx.com/images/Supreme-The-North-Face-RTG-Backpack-Bright-Red.jpg?fit=fill&bg=FFFFFF&w=500&h=500&auto=format,compress&q=90&dpr=2"
+                     alt="Supreme TNF Backpack"
+                     onerror="this.style.opacity='0'" loading="lazy" />
+                <div class="fbadge fb-volt">1 of 3</div>
+            </div>
+            <div class="fmeta">
+                <div class="fmeta-name">Supreme × TNF RTG</div>
+                <div class="fmeta-price">€255</div>
+            </div>
+        </div>
+
+        <!-- 3: Gentle Monster Sunglasses -->
+        <div class="fw fw3">
+            <div class="fcard fc3">
+                <img src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=900&q=80"
+                     alt="Gentle Monster MM007"
+                     onerror="this.style.opacity='0'" loading="lazy" />
+                <div class="fbadge fb-gold">Collab</div>
+            </div>
+            <div class="fmeta">
+                <div class="fmeta-name">GM × Margiela MM007</div>
+                <div class="fmeta-price">€420</div>
+            </div>
+        </div>
+
+        <!-- 4: WTAPS Wallet -->
+        <div class="fw fw4">
+            <div class="fcard fc4">
+                <img src="https://images.unsplash.com/photo-1627123424574-724758594e93?w=900&q=80"
+                     alt="WTAPS Wallet"
+                     onerror="this.style.opacity='0'" loading="lazy" />
+                <div class="fbadge fb-dark">Archive</div>
+            </div>
+            <div class="fmeta">
+                <div class="fmeta-name">WTAPS Chain Wallet</div>
+                <div class="fmeta-price">€180</div>
+            </div>
+        </div>
+
+        <!-- 5: Palace Tri-Ferg Necklace -->
+        <div class="fw fw5">
+            <div class="fcard fc5">
+                <img src="https://images.unsplash.com/photo-1617038220319-276d3cfab638?w=900&q=80"
+                     alt="Palace Necklace"
+                     onerror="this.style.opacity='0'" loading="lazy" />
+                <div class="fbadge fb-volt">Rare</div>
+            </div>
+            <div class="fmeta">
+                <div class="fmeta-name">Palace Tri-Ferg Chain</div>
+                <div class="fmeta-price">€240</div>
+            </div>
+        </div>
+
     </div>
 </section>
 
 <!-- TICKER -->
 <div class="ticker">
-    <div class="ticker-inner">
-        <span class="ticker-item">SUPREME FW25</span><span class="ticker-dot">✦</span>
-        <span class="ticker-item">PALACE DROP</span><span class="ticker-dot">✦</span>
-        <span class="ticker-item">LIMITED STOCK</span><span class="ticker-dot">✦</span>
-        <span class="ticker-item">100% AUTHENTIC</span><span class="ticker-dot">✦</span>
-        <span class="ticker-item">VLTG COLLECTIVE</span><span class="ticker-dot">✦</span>
-        <span class="ticker-item">WORLDWIDE SHIPPING</span><span class="ticker-dot">✦</span>
-        <span class="ticker-item">SUPREME FW25</span><span class="ticker-dot">✦</span>
-        <span class="ticker-item">PALACE DROP</span><span class="ticker-dot">✦</span>
-        <span class="ticker-item">LIMITED STOCK</span><span class="ticker-dot">✦</span>
-        <span class="ticker-item">100% AUTHENTIC</span><span class="ticker-dot">✦</span>
-        <span class="ticker-item">VLTG COLLECTIVE</span><span class="ticker-dot">✦</span>
-        <span class="ticker-item">WORLDWIDE SHIPPING</span><span class="ticker-dot">✦</span>
+    <div class="ticker-t">
+        <span class="ti">SUPREME FW25</span><span class="ts">✦</span>
+        <span class="ti">PALACE DROP</span><span class="ts">✦</span>
+        <span class="ti">PHARRELL APPROVED</span><span class="ts">✦</span>
+        <span class="ti">RONALDO DRIP</span><span class="ts">✦</span>
+        <span class="ti">TRAVIS SCOTT PICKS</span><span class="ts">✦</span>
+        <span class="ti">100% AUTHENTICATED</span><span class="ts">✦</span>
+        <span class="ti">MBAPPÉ CERTIFIED</span><span class="ts">✦</span>
+        <span class="ti">VLTG COLLECTIVE</span><span class="ts">✦</span>
+        <span class="ti">SUPREME FW25</span><span class="ts">✦</span>
+        <span class="ti">PALACE DROP</span><span class="ts">✦</span>
+        <span class="ti">PHARRELL APPROVED</span><span class="ts">✦</span>
+        <span class="ti">RONALDO DRIP</span><span class="ts">✦</span>
+        <span class="ti">TRAVIS SCOTT PICKS</span><span class="ts">✦</span>
+        <span class="ti">100% AUTHENTICATED</span><span class="ts">✦</span>
+        <span class="ti">MBAPPÉ CERTIFIED</span><span class="ts">✦</span>
+        <span class="ti">VLTG COLLECTIVE</span><span class="ts">✦</span>
     </div>
 </div>
 
-<!-- DROPS GRID — REAL PRODUCTS -->
-<section class="drops">
-    <div class="drops-header reveal">
+<!-- CULTURE STRIP -->
+<div class="cult rv">
+    <div class="ct">
+        <img src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800&q=80" alt="street culture" loading="lazy" />
+        <div class="ct-ov"></div>
+        <div class="ct-lbl">STREET <em>CULTURE</em></div>
+        <div class="ct-sub">Fashion als identiteit</div>
+    </div>
+    <div class="ct">
+        <img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=800&q=80" alt="rare pieces" loading="lazy" />
+        <div class="ct-ov"></div>
+        <div class="ct-lbl">RARE <em>PIECES</em></div>
+        <div class="ct-sub">Alleen originals</div>
+    </div>
+    <div class="ct">
+        <img src="https://images.unsplash.com/photo-1523398002811-999ca8dec234?w=800&q=80" alt="drip culture" loading="lazy" />
+        <div class="ct-ov"></div>
+        <div class="ct-lbl">DRIP <em>GODS</em></div>
+        <div class="ct-sub">Zoals de pros het dragen</div>
+    </div>
+</div>
+
+<!-- PRODUCTS -->
+<section class="products" id="products">
+    <div class="sec-hd rv">
         <div>
-            <span class="section-tag">— Latest drops</span>
-            <h2 class="section-title">CURRENT<br>INVENTORY</h2>
+            <span class="sec-tag">— Real pieces. Real prices.</span>
+            <h2 class="sec-ttl">CURRENT<br>INVENTORY</h2>
         </div>
         <a href="#" class="btn-ghost">View All →</a>
     </div>
-    <div class="drops-grid">
 
-        <!-- 1: Supreme Pigment 6-Panel FW24 -->
-        <div class="product-card reveal">
-            <span class="card-label label-drop">New Drop</span>
-            <div class="product-img">
-                <div class="product-img-inner">🧢</div>
-                <div class="product-overlay"><button class="overlay-btn">Add to Cart</button></div>
-                <div class="stockx-tag">StockX: <span>€85</span></div>
+    <div class="pgrid">
+
+        <!-- 1 -->
+        <div class="pc rv">
+            <span class="plbl l-new">FW24 Drop</span>
+            <div class="pc-img">
+                <img src="https://images.stockx.com/images/Supreme-Box-Logo-New-Era-FW24-Black.jpg?fit=fill&bg=FFFFFF&w=700&h=900&auto=format,compress&trim=color&q=90&dpr=2"
+                     alt="Supreme Box Logo Beanie FW24"
+                     onerror="this.classList.add('broken')" loading="lazy" />
+                <div class="fallback"></div>
+                <div class="pc-ov"><button class="pc-btn">Add to Cart</button></div>
+                <div class="psx">StockX <strong>€89</strong></div>
             </div>
-            <div class="product-info">
-                <div class="product-brand">Supreme</div>
-                <div class="product-name">Pigment Coated Canvas S Logo 6-Panel FW24</div>
-                <div class="product-footer">
-                    <span class="product-price">€76 <span class="product-retail">Retail €52</span></span>
-                    <span class="product-stock">3 left</span>
+            <div class="pc-info">
+                <div class="pc-brand">Supreme × New Era</div>
+                <div class="pc-name">Box Logo Beanie FW24 — Black</div>
+                <div class="pc-ft">
+                    <span class="pc-price">€89</span>
+                    <span class="pc-stock">2 left</span>
                 </div>
             </div>
         </div>
 
-        <!-- 2: Supreme × TNF RTG Backpack -->
-        <div class="product-card reveal" style="transition-delay:0.1s">
-            <span class="card-label label-collab">Collab</span>
-            <div class="product-img">
-                <div class="product-img-inner">🎒</div>
-                <div class="product-overlay"><button class="overlay-btn">Add to Cart</button></div>
-                <div class="stockx-tag">StockX: <span>€255</span></div>
+        <!-- 2 -->
+        <div class="pc rv" style="transition-delay:.08s">
+            <span class="plbl l-collab">Collab</span>
+            <div class="pc-img">
+                <img src="https://images.stockx.com/images/Supreme-The-North-Face-RTG-Backpack-Bright-Red.jpg?fit=fill&bg=FFFFFF&w=700&h=900&auto=format,compress&q=90&dpr=2"
+                     alt="Supreme TNF Backpack"
+                     onerror="this.classList.add('broken')" loading="lazy" />
+                <div class="fallback"></div>
+                <div class="pc-ov"><button class="pc-btn">Add to Cart</button></div>
+                <div class="psx">StockX <strong>€255</strong></div>
             </div>
-            <div class="product-info">
-                <div class="product-brand">Supreme × The North Face</div>
-                <div class="product-name">RTG Backpack Bright Red SS20</div>
-                <div class="product-footer">
-                    <span class="product-price">€255</span>
-                    <span class="product-stock">1 left</span>
+            <div class="pc-info">
+                <div class="pc-brand">Supreme × The North Face</div>
+                <div class="pc-name">RTG Backpack Bright Red SS20</div>
+                <div class="pc-ft">
+                    <span class="pc-price">€255</span>
+                    <span class="pc-stock">1 left</span>
                 </div>
             </div>
         </div>
 
-        <!-- 3: Supreme Dead Prez Bandana -->
-        <div class="product-card reveal" style="transition-delay:0.2s">
-            <span class="card-label label-rare">Rare Find</span>
-            <div class="product-img">
-                <div class="product-img-inner">🧣</div>
-                <div class="product-overlay"><button class="overlay-btn">Add to Cart</button></div>
-                <div class="stockx-tag">StockX: <span>€225</span></div>
+        <!-- 3 -->
+        <div class="pc rv" style="transition-delay:.16s">
+            <span class="plbl l-rare">Rare</span>
+            <div class="pc-img">
+                <img src="https://images.stockx.com/images/Gentle-Monster-x-Maison-Margiela-MM007-Sunglasses-W2-White-Black.jpg?fit=fill&bg=FFFFFF&w=700&h=900&auto=format,compress&q=90&dpr=2"
+                     alt="Gentle Monster MM007"
+                     onerror="this.classList.add('broken')" loading="lazy" />
+                <div class="fallback"></div>
+                <div class="pc-ov"><button class="pc-btn">Add to Cart</button></div>
             </div>
-            <div class="product-info">
-                <div class="product-brand">Supreme</div>
-                <div class="product-name">Dead Prez RBG Bandana FW19</div>
-                <div class="product-footer">
-                    <span class="product-price">€225</span>
-                    <span class="product-stock">2 left</span>
+            <div class="pc-info">
+                <div class="pc-brand">Gentle Monster × Margiela</div>
+                <div class="pc-name">MM007 W2 Sunglasses — White/Black</div>
+                <div class="pc-ft">
+                    <span class="pc-price">€420</span>
+                    <span class="pc-stock">2 left</span>
                 </div>
             </div>
         </div>
 
-        <!-- 4: Supreme Backpack Pink SS25 -->
-        <div class="product-card reveal" style="transition-delay:0.3s">
-            <span class="card-label label-drop">SS25</span>
-            <div class="product-img">
-                <div class="product-img-inner">🎽</div>
-                <div class="product-overlay"><button class="overlay-btn">Add to Cart</button></div>
-                <div class="stockx-tag">StockX: <span>€246</span></div>
+        <!-- 4 -->
+        <div class="pc rv" style="transition-delay:.24s">
+            <span class="plbl l-new">SS24</span>
+            <div class="pc-img">
+                <img src="https://images.stockx.com/images/Supreme-Hav-A-Hank-Bandanas-3-Pack-Multicolor.jpg?fit=fill&bg=FFFFFF&w=700&h=900&auto=format,compress&q=90&dpr=2"
+                     alt="Supreme Bandanas"
+                     onerror="this.classList.add('broken')" loading="lazy" />
+                <div class="fallback"></div>
+                <div class="pc-ov"><button class="pc-btn">Add to Cart</button></div>
+                <div class="psx">StockX <strong>€68</strong></div>
             </div>
-            <div class="product-info">
-                <div class="product-brand">Supreme</div>
-                <div class="product-name">Backpack Light Pink SS25</div>
-                <div class="product-footer">
-                    <span class="product-price">€246</span>
-                    <span class="product-stock available">In stock</span>
+            <div class="pc-info">
+                <div class="pc-brand">Supreme</div>
+                <div class="pc-name">Hav-A-Hank Bandanas 3-Pack SS24</div>
+                <div class="pc-ft">
+                    <span class="pc-price">€68</span>
+                    <span class="pc-stock ok">In stock</span>
                 </div>
             </div>
         </div>
 
-        <!-- 5: Supreme 3D Logo Shoulder Bag -->
-        <div class="product-card reveal" style="transition-delay:0.05s">
-            <span class="card-label label-rare">Rare Find</span>
-            <div class="product-img">
-                <div class="product-img-inner">👜</div>
-                <div class="product-overlay"><button class="overlay-btn">Add to Cart</button></div>
-                <div class="stockx-tag">StockX: <span>€89</span></div>
+        <!-- 5 -->
+        <div class="pc rv" style="transition-delay:.08s">
+            <span class="plbl l-collab">KITH</span>
+            <div class="pc-img">
+                <img src="https://images.stockx.com/images/Kith-x-New-Era-Low-Profile-59Fifty-Fitted-Hat-Black.jpg?fit=fill&bg=FFFFFF&w=700&h=900&auto=format,compress&q=90&dpr=2"
+                     alt="Kith New Era Fitted"
+                     onerror="this.classList.add('broken')" loading="lazy" />
+                <div class="fallback"></div>
+                <div class="pc-ov"><button class="pc-btn">Add to Cart</button></div>
+                <div class="psx">StockX <strong>€95</strong></div>
             </div>
-            <div class="product-info">
-                <div class="product-brand">Supreme</div>
-                <div class="product-name">3D Logo Shoulder Bag Blue FW23</div>
-                <div class="product-footer">
-                    <span class="product-price">€89</span>
-                    <span class="product-stock">4 left</span>
+            <div class="pc-info">
+                <div class="pc-brand">Kith × New Era</div>
+                <div class="pc-name">Low Profile 59Fifty Fitted — Black</div>
+                <div class="pc-ft">
+                    <span class="pc-price">€95</span>
+                    <span class="pc-stock">3 left</span>
                 </div>
             </div>
         </div>
 
-        <!-- 6: Palace Surplus 5-Panel SS24 -->
-        <div class="product-card reveal" style="transition-delay:0.15s">
-            <span class="card-label label-drop">Palace</span>
-            <div class="product-img">
-                <div class="product-img-inner">🧢</div>
-                <div class="product-overlay"><button class="overlay-btn">Add to Cart</button></div>
-                <div class="stockx-tag">StockX: <span>€42</span></div>
+        <!-- 6 -->
+        <div class="pc rv" style="transition-delay:.16s">
+            <span class="plbl l-rare">FW24</span>
+            <div class="pc-img">
+                <img src="https://images.stockx.com/images/Supreme-Audio-Technica-AT-SB727-Sound-Burger-Turntable-Red.jpg?fit=fill&bg=FFFFFF&w=700&h=900&auto=format,compress&q=90&dpr=2"
+                     alt="Supreme Audio Technica Turntable"
+                     onerror="this.classList.add('broken')" loading="lazy" />
+                <div class="fallback"></div>
+                <div class="pc-ov"><button class="pc-btn">Add to Cart</button></div>
+                <div class="psx">StockX <strong>€379</strong></div>
             </div>
-            <div class="product-info">
-                <div class="product-brand">Palace Skateboards</div>
-                <div class="product-name">Surplus 5-Panel Yellow Camo SS24</div>
-                <div class="product-footer">
-                    <span class="product-price">€42</span>
-                    <span class="product-stock available">In stock</span>
+            <div class="pc-info">
+                <div class="pc-brand">Supreme × Audio-Technica</div>
+                <div class="pc-name">Sound Burger Turntable Red FW24</div>
+                <div class="pc-ft">
+                    <span class="pc-price">€379</span>
+                    <span class="pc-stock">1 left</span>
                 </div>
             </div>
         </div>
 
-        <!-- 7: Supreme × Fox Racing DMX V1 Helmet -->
-        <div class="product-card reveal" style="transition-delay:0.25s">
-            <span class="card-label label-collab">Collab</span>
-            <div class="product-img">
-                <div class="product-img-inner">🏍️</div>
-                <div class="product-overlay"><button class="overlay-btn">Add to Cart</button></div>
-                <div class="stockx-tag">StockX: <span>€480</span></div>
+        <!-- 7 -->
+        <div class="pc rv" style="transition-delay:.24s">
+            <span class="plbl l-collab">Collab</span>
+            <div class="pc-img">
+                <img src="https://images.stockx.com/images/Supreme-x-Fox-Racing-V1-Helmet-Gray-Camo.jpg?fit=fill&bg=FFFFFF&w=700&h=900&auto=format,compress&q=90&dpr=2"
+                     alt="Supreme Fox Racing Helmet"
+                     onerror="this.classList.add('broken')" loading="lazy" />
+                <div class="fallback"></div>
+                <div class="pc-ov"><button class="pc-btn">Add to Cart</button></div>
             </div>
-            <div class="product-info">
-                <div class="product-brand">Supreme × Fox Racing</div>
-                <div class="product-name">DMX V1 Helmet FW25 — Gray Camo</div>
-                <div class="product-footer">
-                    <span class="product-price">€480</span>
-                    <span class="product-stock">1 left</span>
+            <div class="pc-info">
+                <div class="pc-brand">Supreme × Fox Racing</div>
+                <div class="pc-name">DMX V1 Helmet FW25 — Gray Camo</div>
+                <div class="pc-ft">
+                    <span class="pc-price">€480</span>
+                    <span class="pc-stock">1 left</span>
                 </div>
             </div>
         </div>
 
-        <!-- 8: Supreme CDG Harold Hunter Baseball Shirt -->
-        <div class="product-card reveal" style="transition-delay:0.35s">
-            <span class="card-label label-sold">Archive</span>
-            <div class="product-img">
-                <div class="product-img-inner">🏆</div>
-                <div class="product-overlay"><button class="overlay-btn">Make Offer</button></div>
-                <div class="stockx-tag">StockX: <span>€555</span></div>
+        <!-- 8 -->
+        <div class="pc rv" style="transition-delay:.32s">
+            <span class="plbl l-arch">Archive</span>
+            <div class="pc-img">
+                <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=900&q=80"
+                     alt="Supreme LV Bandana SS17"
+                     onerror="this.classList.add('broken')" loading="lazy" />
+                <div class="fallback"></div>
+                <div class="pc-ov"><button class="pc-btn">Make Offer</button></div>
+                <div class="psx">StockX <strong>€620</strong></div>
             </div>
-            <div class="product-info">
-                <div class="product-brand">Supreme × CDG</div>
-                <div class="product-name">Harold Hunter Baseball Shirt SS14</div>
-                <div class="product-footer">
-                    <span class="product-price">€555</span>
-                    <span class="product-stock">1 left</span>
+            <div class="pc-info">
+                <div class="pc-brand">Supreme × Louis Vuitton</div>
+                <div class="pc-name">LV Monogram Bandana SS17 — Brown</div>
+                <div class="pc-ft">
+                    <span class="pc-price">€620</span>
+                    <span class="pc-stock">1 left</span>
                 </div>
             </div>
         </div>
@@ -1017,115 +839,107 @@
     </div>
 </section>
 
-<!-- STORY -->
-<div class="story">
-    <div class="story-visual">🏴</div>
-    <div class="story-content reveal">
-        <span class="section-tag">— Our philosophy</span>
-        <h2 class="story-quote">
-            Niet iedereen mag <em>rare</em> dragen.
+<!-- QUOTE BLOCK -->
+<div class="qb">
+    <div class="qv rv">
+        <img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=900&q=80" alt="street culture" loading="lazy" />
+        <div class="qv-ov"></div>
+    </div>
+    <div class="qt rv">
+        <div class="q-ey">— De cultuur leeft hier</div>
+        <h2 class="q-ttl">
+            Pharrell droeg het.<br>
+            De <em>rappers</em> ook.<br>
+            Nu jij.
         </h2>
-        <p class="story-body">
-            VLTG is geen gewone webshop. We curate elk stuk persoonlijk — direct van Japan, New York, en Parijs. Geen bots, geen bussen. Puur human network. Als het hier staat, is het echt. Als het weg is, is het weg.
+        <p class="q-body">
+            Van Pharrell's NIGO-era fits tot de chains van Neymar en Travis Scott — wij curate alleen wat echt telt. Elk stuk geverifieerd, elke drop handpicked. Geen reseller nonsense, geen fakes.
         </p>
-        <a href="#" class="story-link">Lees ons verhaal</a>
+        <a href="#" class="q-link">Ontdek de cultuur →</a>
+        <div class="q-pills">
+            <div class="q-pill"><div class="q-pill-dot"></div> 100% Authentic</div>
+            <div class="q-pill"><div class="q-pill-dot"></div> Worldwide Ship</div>
+            <div class="q-pill"><div class="q-pill-dot"></div> Secure Pay</div>
+        </div>
     </div>
 </div>
 
-<!-- CATEGORIES -->
-<section class="categories">
-    <span class="section-tag reveal">— Shop by category</span>
-    <h2 class="section-title reveal">BROWSE<br>THE RANGE</h2>
-    <div class="cat-grid">
-        <div class="cat-item reveal">
-            <div class="cat-inner">
-                <div class="cat-emoji">🧢</div>
-                <div class="cat-bg"></div>
-                <div class="cat-info">
-                    <span class="cat-name">Headwear</span>
-                    <span class="cat-count">Supreme · Palace · WTAPS</span>
-                </div>
-            </div>
+<!-- WHO WEARS IT -->
+<section class="names-sec rv">
+    <div class="names-inner">
+        <div class="names-copy">
+            <span class="sec-tag">— Gezien op de beste</span>
+            <h2 class="sec-ttl" style="font-family:'Barlow Condensed',sans-serif;font-weight:900;line-height:.9;">WIE HET<br>DRAAGT</h2>
+            <p style="font-size:.7rem;line-height:1.95;color:var(--muted);max-width:360px;margin-top:22px;">
+                De stukken die wij curate zijn gespot op de grootste namen in muziek, sport en kunst. Van backstage tot op het veld — dit is de drip die telt.
+            </p>
+            <a href="#products" class="btn-solid" style="margin-top:34px;display:inline-block;">Shop de Collectie</a>
         </div>
-        <div class="cat-item reveal" style="transition-delay:0.1s">
-            <div class="cat-inner">
-                <div class="cat-emoji">🎒</div>
-                <div class="cat-bg"></div>
-                <div class="cat-info">
-                    <span class="cat-name">Bags</span>
-                    <span class="cat-count">Supreme × TNF · Porter · KITH</span>
-                </div>
-            </div>
-        </div>
-        <div class="cat-item reveal" style="transition-delay:0.2s">
-            <div class="cat-inner">
-                <div class="cat-emoji">🧣</div>
-                <div class="cat-bg"></div>
-                <div class="cat-info">
-                    <span class="cat-name">Scarves & Bandanas</span>
-                    <span class="cat-count">Supreme · CDG · Junya</span>
-                </div>
-            </div>
-        </div>
-        <div class="cat-item reveal" style="transition-delay:0.05s">
-            <div class="cat-inner">
-                <div class="cat-emoji">📿</div>
-                <div class="cat-bg"></div>
-                <div class="cat-info">
-                    <span class="cat-name">Jewelry</span>
-                    <span class="cat-count">Supreme · CDG · Undercover</span>
-                </div>
-            </div>
-        </div>
-        <div class="cat-item reveal" style="transition-delay:0.15s">
-            <div class="cat-inner">
-                <div class="cat-emoji">🕶️</div>
-                <div class="cat-bg"></div>
-                <div class="cat-info">
-                    <span class="cat-name">Eyewear</span>
-                    <span class="cat-count">Gentle Monster · WTAPS · CDG</span>
-                </div>
-            </div>
-        </div>
-        <div class="cat-item reveal" style="transition-delay:0.25s">
-            <div class="cat-inner">
-                <div class="cat-emoji">🏆</div>
-                <div class="cat-bg"></div>
-                <div class="cat-info">
-                    <span class="cat-name">Archive Pieces</span>
-                    <span class="cat-count">Pre-2020 Grails · Collab Only</span>
-                </div>
+
+        <div class="names-wall">
+            <div class="names-track">
+                <div class="n-item active">PHARRELL <span class="n-cat art">MUZIEK / MODE</span></div>
+                <div class="n-item">TRAVIS SCOTT <span class="n-cat rap">RAPPER</span></div>
+                <div class="n-item">NEYMAR JR <span class="n-cat foot">VOETBAL</span></div>
+                <div class="n-item">ASAP ROCKY <span class="n-cat rap">RAPPER</span></div>
+                <div class="n-item">MBAPPÉ <span class="n-cat foot">VOETBAL</span></div>
+                <div class="n-item">TYLER THE CREATOR <span class="n-cat rap">RAPPER</span></div>
+                <div class="n-item">BELLINGHAM <span class="n-cat foot">VOETBAL</span></div>
+                <div class="n-item">PLAYBOI CARTI <span class="n-cat rap">RAPPER</span></div>
+                <div class="n-item">HAALAND <span class="n-cat foot">VOETBAL</span></div>
+                <div class="n-item">LIL UZI VERT <span class="n-cat rap">RAPPER</span></div>
+                <div class="n-item">VINICIUS JR <span class="n-cat foot">VOETBAL</span></div>
+                <div class="n-item">GUNNA <span class="n-cat rap">RAPPER</span></div>
+                <div class="n-item">ODELL BECKHAM <span class="n-cat foot">NFL</span></div>
+                <div class="n-item">CENTRAL CEE <span class="n-cat rap">RAPPER</span></div>
+                <div class="n-item">POGBA <span class="n-cat foot">VOETBAL</span></div>
+                <div class="n-item">KID CUDI <span class="n-cat rap">RAPPER</span></div>
+                <!-- duplicate for loop -->
+                <div class="n-item active">PHARRELL <span class="n-cat art">MUZIEK / MODE</span></div>
+                <div class="n-item">TRAVIS SCOTT <span class="n-cat rap">RAPPER</span></div>
+                <div class="n-item">NEYMAR JR <span class="n-cat foot">VOETBAL</span></div>
+                <div class="n-item">ASAP ROCKY <span class="n-cat rap">RAPPER</span></div>
+                <div class="n-item">MBAPPÉ <span class="n-cat foot">VOETBAL</span></div>
+                <div class="n-item">TYLER THE CREATOR <span class="n-cat rap">RAPPER</span></div>
+                <div class="n-item">BELLINGHAM <span class="n-cat foot">VOETBAL</span></div>
+                <div class="n-item">PLAYBOI CARTI <span class="n-cat rap">RAPPER</span></div>
+                <div class="n-item">HAALAND <span class="n-cat foot">VOETBAL</span></div>
+                <div class="n-item">LIL UZI VERT <span class="n-cat rap">RAPPER</span></div>
+                <div class="n-item">VINICIUS JR <span class="n-cat foot">VOETBAL</span></div>
+                <div class="n-item">GUNNA <span class="n-cat rap">RAPPER</span></div>
+                <div class="n-item">ODELL BECKHAM <span class="n-cat foot">NFL</span></div>
+                <div class="n-item">CENTRAL CEE <span class="n-cat rap">RAPPER</span></div>
+                <div class="n-item">POGBA <span class="n-cat foot">VOETBAL</span></div>
+                <div class="n-item">KID CUDI <span class="n-cat rap">RAPPER</span></div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- DROP ALERT -->
-<div class="alert-section">
-    <div class="reveal">
-        <h2 class="alert-title">NOOIT EEN DROP MISSEN.</h2>
-        <p class="alert-sub">
-            Meld je aan voor drop alerts. Wij sturen je een notificatie 10 minuten voor elke exclusive release. Geen spam. Alleen drops die tellen.
-        </p>
+<!-- NEWSLETTER -->
+<div class="nl">
+    <div class="rv">
+        <h2 class="nl-ttl">NOOIT EEN DROP MISSEN.</h2>
+        <p class="nl-sub">Meld je aan voor drop alerts. 10 minuten voor elke release krijg jij de notificatie. Geen spam — alleen drops die tellen.</p>
     </div>
-    <div class="alert-form reveal">
-        <input type="email" class="alert-input" placeholder="jouw@email.com" />
-        <input type="text" class="alert-input" placeholder="Instagram handle (optioneel)" />
-        <button class="alert-btn">Drop Alert Activeren →</button>
-        <span class="alert-note">// NO SPAM. UNSUBSCRIBE ANYTIME. REAL DROPS ONLY.</span>
+    <div class="nl-form rv">
+        <input type="email" class="nl-in" placeholder="jouw@email.com" />
+        <input type="text"  class="nl-in" placeholder="Instagram handle (optioneel)" />
+        <button class="nl-btn">Drop Alert Activeren →</button>
+        <span class="nl-note">// NO SPAM. REAL DROPS ONLY. UNSUBSCRIBE ANYTIME.</span>
     </div>
 </div>
 
 <!-- FOOTER -->
 <footer>
-    <div class="footer-top">
+    <div class="ft-grid">
         <div>
-            <div class="footer-logo">VLT<span>G</span></div>
-            <p class="footer-desc">Rare streetwear accessories. Curated globally. Shipped worldwide. Authenticated always.</p>
+            <div class="ft-logo">VLT<em>G</em></div>
+            <p class="ft-desc">Rare streetwear accessories. Curated globally. Shipped worldwide. Authenticated always.</p>
         </div>
         <div>
-            <div class="footer-col-title">Shop</div>
-            <ul class="footer-links">
+            <div class="ft-h">Shop</div>
+            <ul class="ft-ul">
                 <li><a href="#">New Drops</a></li>
                 <li><a href="#">Archive</a></li>
                 <li><a href="#">Headwear</a></li>
@@ -1134,8 +948,8 @@
             </ul>
         </div>
         <div>
-            <div class="footer-col-title">Info</div>
-            <ul class="footer-links">
+            <div class="ft-h">Info</div>
+            <ul class="ft-ul">
                 <li><a href="#">Our Story</a></li>
                 <li><a href="#">Authentication</a></li>
                 <li><a href="#">Shipping</a></li>
@@ -1144,62 +958,162 @@
             </ul>
         </div>
         <div>
-            <div class="footer-col-title">Contact</div>
-            <ul class="footer-links">
+            <div class="ft-h">Contact</div>
+            <ul class="ft-ul">
                 <li><a href="#">drops@vltg.store</a></li>
                 <li><a href="#">@vltg.store</a></li>
                 <li><a href="#">Eindhoven, NL</a></li>
             </ul>
         </div>
     </div>
-    <div class="footer-bottom">
-        <span class="footer-copy">© 2025 VLTG — All rights reserved. All pieces authenticated.</span>
-        <div class="footer-socials">
-            <a href="#" class="social-link">IG</a>
-            <a href="#" class="social-link">TW</a>
-            <a href="#" class="social-link">TK</a>
+    <div class="ft-bot">
+        <span class="ft-copy">© 2025 VLTG — All rights reserved. All pieces authenticated.</span>
+        <div class="ft-soc">
+            <a href="#" class="soc-a">IG</a>
+            <a href="#" class="soc-a">TW</a>
+            <a href="#" class="soc-a">TK</a>
         </div>
     </div>
 </footer>
 
 <script>
-    // Custom cursor
-    const cursor = document.getElementById('cursor');
-    const ring = document.getElementById('cursorRing');
-    let mx = 0, my = 0, rx = 0, ry = 0;
-    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-    function animateCursor() {
-        cursor.style.left = mx + 'px';
-        cursor.style.top = my + 'px';
-        rx += (mx - rx) * 0.12;
-        ry += (my - ry) * 0.12;
-        ring.style.left = rx + 'px';
-        ring.style.top = ry + 'px';
-        requestAnimationFrame(animateCursor);
-    }
-    animateCursor();
+    // cursor
+    const cur = document.getElementById('cur');
+    const curR = document.getElementById('cur-r');
+    let mx=0,my=0,rx=0,ry=0;
+    document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
+    (function loop(){
+        cur.style.left  = mx+'px'; cur.style.top  = my+'px';
+        rx += (mx-rx)*.11; ry += (my-ry)*.11;
+        curR.style.left = rx+'px'; curR.style.top = ry+'px';
+        requestAnimationFrame(loop);
+    })();
 
-    // Countdown
-    function updateCountdown() {
-        const el = document.getElementById('countdownDisplay');
-        if (!el) return;
-        const parts = el.textContent.split(':').map(Number);
-        let s = parts[0]*3600 + parts[1]*60 + parts[2];
-        s = s > 0 ? s - 1 : 86399;
-        const h = String(Math.floor(s/3600)).padStart(2,'0');
-        const m = String(Math.floor((s%3600)/60)).padStart(2,'0');
-        const sec = String(s%60).padStart(2,'0');
-        el.textContent = `${h}:${m}:${sec}`;
-    }
-    setInterval(updateCountdown, 1000);
+    // countdown
+    (function(){
+        const el = document.getElementById('tval');
+        setInterval(()=>{
+            const p = el.textContent.split(':').map(Number);
+            let s = p[0]*3600 + p[1]*60 + p[2];
+            s = s>0 ? s-1 : 86399;
+            el.textContent = [
+                String(Math.floor(s/3600)).padStart(2,'0'),
+                String(Math.floor(s%3600/60)).padStart(2,'0'),
+                String(s%60).padStart(2,'0')
+            ].join(':');
+        },1000);
+    })();
 
-    // Scroll reveal
-    const reveals = document.querySelectorAll('.reveal');
-    const io = new IntersectionObserver(entries => {
-        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-    }, { threshold: 0.1 });
-    reveals.forEach(el => io.observe(el));
+    // scroll reveal
+    const io = new IntersectionObserver(es=>{
+        es.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('on'); });
+    },{ threshold:.07 });
+    document.querySelectorAll('.rv').forEach(el => io.observe(el));
 </script>
+
+<script>
+    const cart = JSON.parse(localStorage.getItem('vltg-cart') || '[]');
+
+    function saveCart(){
+        localStorage.setItem('vltg-cart', JSON.stringify(cart));
+        renderCart();
+    }
+
+    function addToCart(name, price){
+        const existing = cart.find(i => i.name === name);
+        if(existing){
+            existing.qty += 1;
+        } else {
+            cart.push({name, price, qty:1});
+        }
+        saveCart();
+    }
+
+    function removeItem(name){
+        const index = cart.findIndex(i => i.name === name);
+        if(index > -1){
+            cart.splice(index,1);
+            saveCart();
+        }
+    }
+
+    function renderCart(){
+        const items = document.getElementById('cart-items');
+        const total = document.getElementById('cart-total');
+        if(!items) return;
+
+        items.innerHTML = '';
+
+        let sum = 0;
+
+        cart.forEach(item=>{
+            sum += item.price * item.qty;
+
+            const div = document.createElement('div');
+            div.style.marginBottom = '14px';
+            div.innerHTML = `
+      <div style="display:flex;justify-content:space-between;gap:10px;">
+        <div>
+          <strong>${item.name}</strong><br>
+          <small>${item.qty}x €${item.price}</small>
+        </div>
+        <button onclick="removeItem('${item.name}')" style="background:#bf2c24;color:white;border:none;padding:6px 10px;">X</button>
+      </div>
+    `;
+            items.appendChild(div);
+        });
+
+        total.textContent = '€' + sum;
+    }
+
+    document.querySelectorAll('.pc').forEach(card=>{
+        const name = card.querySelector('.pc-name')?.innerText || 'Item';
+        const priceText = card.querySelector('.pc-price')?.innerText || '€0';
+        const price = parseInt(priceText.replace(/[^0-9]/g,''));
+
+        const btn = card.querySelector('.pc-btn');
+        if(btn){
+            btn.addEventListener('click', ()=>{
+                addToCart(name, price);
+            });
+        }
+    });
+
+    document.body.insertAdjacentHTML('beforeend', `
+<div id="cart-box" style="
+position:fixed;
+top:90px;
+right:20px;
+width:320px;
+background:#111;
+border:1px solid rgba(255,255,255,.08);
+padding:20px;
+z-index:9999;
+color:#f0e8d0;
+font-family:monospace;
+max-height:70vh;
+overflow:auto;
+">
+<h2 style="margin-bottom:18px;">Shopping Cart</h2>
+<div id="cart-items"></div>
+<hr style="margin:14px 0;border-color:#333;">
+<div style="display:flex;justify-content:space-between;">
+<strong>Total</strong>
+<strong id="cart-total">€0</strong>
+</div>
+<button style="
+margin-top:18px;
+width:100%;
+padding:12px;
+background:#b5ff00;
+border:none;
+font-weight:bold;
+">Checkout</button>
+</div>
+`);
+
+    renderCart();
+</script>
+
 </body>
 </html>
-
