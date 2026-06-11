@@ -1,940 +1,182 @@
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-    <meta name="theme-color" content="#080808"/>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Crect width=%27100%27 height=%27100%27 fill=%27%23080808%27/%3E%3Ctext x=%2750%27 y=%2761%27 text-anchor=%27middle%27 font-size=%2744%27 fill=%27%23c9a227%27 font-family=%27Arial%27%3EGA%3C/text%3E%3C/svg%3E"/>
-    <title>GHOST ARCHIVE — Rare Streetwear Vault</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com"/>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,700;0,900;1,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+from pathlib import Path
+from PIL import Image, ImageDraw, ImageFilter
+import base64, io, json, math, random
+
+def make_product_image(kind, label, bg1, accent):
+W,H=900,1200
+img=Image.new("RGB",(W,H),bg1)
+draw=ImageDraw.Draw(img)
+# background gradient/noise
+for y in range(H):
+shade=int(8+22*y/H)
+draw.line([(0,y),(W,y)], fill=(shade,shade,shade))
+for _ in range(1200):
+x=random.randrange(W); y=random.randrange(H)
+v=random.randrange(8,40)
+draw.point((x,y), fill=(v,v,v))
+# glow
+glow=Image.new("RGBA",(W,H),(0,0,0,0))
+gd=ImageDraw.Draw(glow)
+gd.ellipse((130,80,770,720), fill=accent+(45,))
+glow=glow.filter(ImageFilter.GaussianBlur(80))
+img=Image.alpha_composite(img.convert("RGBA"), glow)
+draw=ImageDraw.Draw(img)
+# card area
+draw.rounded_rectangle((120,150,780,900), radius=36, fill=(245,245,238,255), outline=accent+(255,), width=5)
+draw.rounded_rectangle((155,190,745,860), radius=28, fill=(232,232,224,255))
+cx,cy=450,510
+
+black=(20,20,20,255); dark=(35,35,35,255); grey=(70,70,70,255)
+red=(150,25,25,255); yellow=(205,162,39,255); beige=(185,160,120,255); blue=(35,55,85,255)
+if kind=="beanie":
+draw.ellipse((285,315,615,570), fill=black)
+draw.rectangle((270,500,630,645), fill=black)
+for x in range(295,620,22): draw.line((x,330,x,635), fill=(55,55,55,255), width=5)
+draw.rounded_rectangle((315,535,585,625), radius=18, fill=(28,28,28,255), outline=grey, width=3)
+draw.rounded_rectangle((398,562,502,600), radius=8, fill=accent+(255,))
+elif kind=="cap":
+draw.pieslice((265,260,635,610), 180, 360, fill=dark)
+draw.rectangle((270,435,630,600), fill=dark)
+draw.pieslice((500,470,805,610), 185, 355, fill=dark)
+draw.line((305,435,600,435), fill=grey, width=4)
+draw.rounded_rectangle((386,470,515,525), radius=14, fill=accent+(255,))
+elif kind=="bucket":
+draw.polygon([(290,330),(610,330),(670,620),(230,620)], fill=black)
+draw.ellipse((230,570,670,735), fill=black)
+draw.arc((270,300,630,470),0,180,fill=grey,width=8)
+draw.rounded_rectangle((380,435,520,485), radius=12, fill=accent+(255,))
+elif kind=="backpack":
+draw.rounded_rectangle((285,250,615,740), radius=55, fill=red, outline=black, width=10)
+draw.rounded_rectangle((330,315,570,500), radius=35, fill=(25,25,25,255))
+draw.rounded_rectangle((335,535,565,690), radius=28, fill=(40,40,40,255))
+draw.line((315,260,210,700), fill=black, width=28)
+draw.line((585,260,690,700), fill=black, width=28)
+draw.rectangle((375,360,525,390), fill=accent+(255,))
+elif kind=="shoulderbag":
+draw.arc((260,185,640,585),200,340,fill=black,width=24)
+draw.rounded_rectangle((260,430,640,690), radius=40, fill=blue, outline=black, width=8)
+for x in range(260,640,45):
+draw.line((x,430,x+140,690), fill=(70,90,115,255), width=18)
+draw.rounded_rectangle((335,500,565,585), radius=20, fill=(25,25,30,255))
+draw.rectangle((390,525,510,550), fill=accent+(255,))
+elif kind=="fannypack":
+draw.rounded_rectangle((205,420,695,650), radius=85, fill=black, outline=grey, width=7)
+draw.rounded_rectangle((320,475,580,585), radius=35, fill=(35,35,35,255))
+draw.arc((120,360,780,730), 190, 350, fill=(45,45,45,255), width=28)
+draw.rectangle((380,520,520,545), fill=accent+(255,))
+elif kind=="belt":
+draw.rounded_rectangle((175,480,725,590), radius=26, fill=(220,170,25,255))
+draw.rounded_rectangle((560,445,705,625), radius=18, outline=black, width=28)
+for x in range(220,535,55): draw.ellipse((x,518,x+24,542), fill=(40,40,40,255))
+draw.text((250,520), "INDUSTRIAL", fill=black)
+elif kind=="bandana":
+colors=[red,black,blue]
+for i,c in enumerate(colors):
+x=250+i*105
+draw.polygon([(x,360),(x+220,470),(x+110,690),(x-110,580)], fill=c, outline=black)
+for k in range(6):
+draw.arc((x-60+k*20,450+k*15,x+160+k*20,610+k*15),0,360,fill=(235,235,225,255),width=3)
+elif kind=="chain":
+# jewelry chain loops
+for i in range(16):
+x=205+i*30; y=500+int(math.sin(i/2)*45)
+draw.ellipse((x,y,x+95,y+55), outline=(190,190,190,255), width=12)
+draw.ellipse((330,390,570,725), outline=(210,210,210,255), width=16)
+else:
+draw.rounded_rectangle((270,340,630,650), radius=50, fill=black)
+
+# label strip
+draw.rounded_rectangle((170,940,730,1048), radius=28, fill=(12,12,12,255), outline=accent+(255,), width=3)
+try:
+draw.text((450,975), label[:28], fill=(240,232,208,255), anchor="mm")
+except TypeError:
+draw.text((240,975), label[:28], fill=(240,232,208,255))
+draw.text((450,1110), "GHOST ARCHIVE PRODUCT PHOTO", fill=accent+(255,), anchor="mm")
+buf=io.BytesIO()
+img.convert("RGB").save(buf, format="JPEG", quality=88)
+return "data:image/jpeg;base64,"+base64.b64encode(buf.getvalue()).decode()
+
+accent=(201,162,39)
+items=[
+("Supreme","SUP","Headwear","Black Box Beanie",89,"2 left","beanie"),
+("The North Face","TNF","Bags","Red Technical Backpack",255,"1 left","backpack"),
+("BAPE","APE","Bags","Navy Camo Shoulder Bag",145,"In stock","shoulderbag"),
+("Travis Scott","CJ","Headwear","Brown Streetwear Cap",280,"1 left","cap"),
+("Carhartt WIP","WIP","Headwear","Black Watch Beanie",38,"In stock","beanie"),
+("Human Made","HM","Headwear","Beige Dad Cap",115,"2 left","cap"),
+("Off-White","OW","Accessories","Yellow Industrial Belt",195,"2 left","belt"),
+("Stüssy","STU","Headwear","Black Bucket Hat",62,"In stock","bucket"),
+("Nike ACG","ACG","Bags","Black Utility Fanny Pack",68,"In stock","fannypack"),
+("Kith","KTH","Headwear","Black Fitted Cap",95,"3 left","cap"),
+("Supreme","SUP","Accessories","Bandana 3-Pack",68,"In stock","bandana"),
+("Palace","PAL","Accessories","Silver Necklace Chain",240,"2 left","chain"),
+]
+products=[]
+for brand,mark,cat,name,price,stock,kind in items:
+products.append({"brand":brand,"mark":mark,"cat":cat,"name":name,"price":price,"stock":stock,"kind":kind,
+"desc":f"Ingebouwde productafbeelding: {kind}. Deze laadt altijd en past bij de categorie.",
+"img":make_product_image(kind, name, (8,8,8), accent)})
+
+celebs = [
+("PHARRELL","MUZIEK / MODE","n-art","c-art","https://www.instagram.com/pharrell/"),
+("TRAVIS SCOTT","RAPPER","n-rap","c-rap","https://www.instagram.com/travisscott/"),
+("NEYMAR JR","VOETBAL","n-foot","c-foot","https://www.instagram.com/neymarjr/"),
+("ASAP ROCKY","RAPPER","n-rap","c-rap","https://www.instagram.com/asaprocky/"),
+("MBAPPÉ","VOETBAL","n-foot","c-foot","https://www.instagram.com/k.mbappe/"),
+("TYLER THE CREATOR","RAPPER","n-rap","c-rap","https://www.instagram.com/feliciathegoat/"),
+("BELLINGHAM","VOETBAL","n-foot","c-foot","https://www.instagram.com/jude_bellingham/"),
+("PLAYBOI CARTI","RAPPER","n-rap","c-rap","https://www.instagram.com/playboicarti/"),
+("HAALAND","VOETBAL","n-foot","c-foot","https://www.instagram.com/erling.haaland/"),
+("LIL UZI VERT","RAPPER","n-rap","c-rap","https://www.instagram.com/liluzivert/"),
+("CENTRAL CEE","RAPPER","n-rap","c-rap","https://www.instagram.com/centralcee_/"),
+("VIRGIL ABLOH","DESIGNER","n-art","c-art","https://en.wikipedia.org/wiki/Virgil_Abloh"),
+]
+celebs_js=json.dumps([{"n":n,"cat":cat,"cl":cl,"cc":cc,"url":url} for n,cat,cl,cc,url in celebs], ensure_ascii=False)
+
+html = f"""<!DOCTYPE html><html lang="nl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>GHOST ARCHIVE — Complete Vault</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        :root{
-            --ink:#080808;--cream:#f0e8d0;--gold:#c9a227;--volt:#b5ff00;
-            --red:#bf2c24;--smoke:#141414;--dim:#222;--muted:#585858;--line:rgba(240,232,208,.09);
-        }
-        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-        html{scroll-behavior:smooth}
-        body{background:var(--ink);color:var(--cream);font-family:'DM Mono',monospace;overflow-x:hidden;cursor:none}
-
-        /* CURSOR */
-        #cur{position:fixed;width:10px;height:10px;background:var(--volt);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:difference}
-        #cur-r{position:fixed;width:30px;height:30px;border:1px solid var(--gold);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%)}
-
-        /* GRAIN */
-        body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:900;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)' opacity='.03'/%3E%3C/svg%3E");opacity:.45}
-
-        /* NAV */
-        nav{position:fixed;top:0;left:0;right:0;z-index:700;display:flex;align-items:center;justify-content:space-between;padding:18px 56px;background:rgba(8,8,8,.92);backdrop-filter:blur(22px);border-bottom:1px solid var(--line)}
-        .logo{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.28em;color:var(--cream);text-decoration:none}
-        .logo em{font-style:normal;color:var(--gold)}
-        .nav-links{display:flex;gap:32px;list-style:none}
-        .nav-links a{font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s}
-        .nav-links a:hover{color:var(--volt)}
-        .nav-right{display:flex;align-items:center;gap:14px}
-        .nav-cta{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;background:var(--gold);color:var(--ink);border:none;padding:8px 20px;font-weight:700;cursor:none;transition:background .2s}
-        .nav-cta:hover{background:#dbb43a}
-        .cart-btn{background:transparent;border:1px solid var(--line);color:var(--cream);padding:8px 18px;font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;cursor:none;transition:border-color .2s,color .2s;display:flex;align-items:center;gap:8px}
-        .cart-btn:hover{border-color:var(--gold);color:var(--gold)}
-        .cart-count{background:var(--volt);color:var(--ink);font-size:.5rem;font-weight:700;min-width:18px;height:18px;border-radius:9px;padding:0 4px;display:none;align-items:center;justify-content:center}
-        .cart-count.show{display:flex}
-
-        /* ── PURCHASE ANIMATIONS ── */
-        #addOverlay{position:fixed;inset:0;z-index:1100;pointer-events:none;overflow:hidden}
-        @keyframes flyToCart{0%{opacity:1}70%{opacity:.9}100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(.08)}}
-        .fly-item{position:absolute;object-fit:cover;pointer-events:none;transform-origin:center;border-radius:2px}
-        @keyframes confettiFall{0%{opacity:1;transform:translate(0,0) rotate(0deg) scale(1)}100%{opacity:0;transform:translate(var(--cx),var(--cy)) rotate(var(--cr)) scale(.15)}}
-        .cp{position:absolute;width:8px;height:8px;pointer-events:none;animation:confettiFall var(--d) ease-out forwards}
-        @keyframes voltFlash{0%{opacity:.4}100%{opacity:0}}
-        .vf{position:fixed;inset:0;background:var(--volt);pointer-events:none;z-index:1099;animation:voltFlash .5s ease-out forwards}
-        @keyframes checkPop{0%{opacity:0;transform:translateX(-50%) scale(.4) rotate(-15deg)}65%{transform:translateX(-50%) scale(1.15) rotate(3deg);opacity:1}100%{transform:translateX(-50%) scale(1) rotate(0deg);opacity:1}}
-        .chk-pop{position:fixed;z-index:1200;pointer-events:none;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--volt);background:var(--ink);border:1px solid var(--volt);padding:9px 22px;white-space:nowrap;animation:checkPop .45s cubic-bezier(.34,1.56,.64,1) forwards}
-        @keyframes cartBounce{0%,100%{transform:scale(1)}40%{transform:scale(1.22)}70%{transform:scale(.94)}}
-
-        /* CART PANEL */
-        .cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:800;opacity:0;pointer-events:none;transition:opacity .3s}
-        .cart-overlay.open{opacity:1;pointer-events:all}
-        .cart-panel{position:fixed;top:0;right:0;bottom:0;width:440px;background:var(--smoke);z-index:801;transform:translateX(110%);transition:transform .4s cubic-bezier(.22,.68,0,1.2);display:flex;flex-direction:column;border-left:1px solid var(--line)}
-        .cart-panel.open{transform:translateX(0)}
-        .cart-hdr{padding:26px 26px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
-        .cart-ttl{font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:900;letter-spacing:.05em}
-        .cart-close{background:transparent;border:none;color:var(--muted);font-size:1.2rem;cursor:none;transition:color .2s;line-height:1}
-        .cart-close:hover{color:var(--cream)}
-        .cart-items{flex:1;overflow-y:auto;padding:18px 22px;display:flex;flex-direction:column;gap:12px}
-        .cart-items::-webkit-scrollbar{width:3px}
-        .cart-items::-webkit-scrollbar-thumb{background:var(--dim)}
-        .cart-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;color:var(--muted)}
-        .cart-empty-ttl{font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700}
-        .cart-empty-sub{font-size:.56rem;letter-spacing:.16em;text-transform:uppercase}
-        @keyframes slideInCart{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
-        .ci{display:grid;grid-template-columns:66px 1fr auto;gap:12px;align-items:start;padding:12px;background:var(--dim);border:1px solid var(--line);animation:slideInCart .3s ease forwards}
-        .ci img{width:66px;height:76px;object-fit:cover;background:#1a1a1a;display:block}
-        .ci-name{font-family:'Barlow Condensed',sans-serif;font-size:.92rem;font-weight:700;line-height:1.2;margin-bottom:3px}
-        .ci-brand{font-size:.46rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
-        .ci-price{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--gold)}
-        .ci-qty{display:flex;align-items:center;gap:8px;margin-top:6px}
-        .qb2{background:var(--smoke);border:1px solid var(--line);color:var(--cream);width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:.85rem;cursor:none;transition:background .2s;border:1px solid var(--dim)}
-        .qb2:hover{background:#2a2a2a}
-        .qv2{font-size:.7rem;min-width:14px;text-align:center}
-        .rmb{background:transparent;border:none;color:var(--muted);font-size:.72rem;cursor:none;transition:color .2s}
-        .rmb:hover{color:var(--red)}
-        .cart-foot{padding:20px 22px;border-top:1px solid var(--line)}
-        .cart-sub-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-        .cart-sub-lbl{font-size:.56rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
-        .cart-sub-val{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;color:var(--gold)}
-        .chk-btn{width:100%;background:var(--volt);color:var(--ink);font-family:'DM Mono',monospace;font-size:.66rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;padding:14px;border:none;cursor:none;transition:background .2s}
-        .chk-btn:hover{background:#c8ff22}
-        .cart-note3{font-size:.5rem;letter-spacing:.1em;color:var(--muted);text-align:center;margin-top:10px}
-
-        /* MODAL */
-        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:850;opacity:0;pointer-events:none;transition:opacity .3s;display:flex;align-items:center;justify-content:center;padding:28px}
-        .modal-overlay.open{opacity:1;pointer-events:all}
-        .modal{background:var(--smoke);max-width:900px;width:100%;max-height:92vh;overflow-y:auto;border:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;position:relative;transform:scale(.94);transition:transform .3s}
-        .modal-overlay.open .modal{transform:scale(1)}
-        .modal::-webkit-scrollbar{width:3px}
-        .modal::-webkit-scrollbar-thumb{background:var(--dim)}
-        .modal-close{position:absolute;top:12px;right:12px;background:rgba(8,8,8,.85);border:1px solid var(--line);color:var(--muted);width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:none;z-index:5;transition:color .2s,border-color .2s;font-size:.9rem}
-        .modal-close:hover{color:var(--cream);border-color:var(--cream)}
-        .modal-imgs{position:relative;background:#0f0f0f}
-        .modal-main{width:100%;aspect-ratio:1;object-fit:cover;display:block}
-        .modal-thumbs{display:flex;gap:4px;padding:7px;background:var(--ink);flex-wrap:wrap}
-        .modal-thumb{width:52px;height:52px;object-fit:cover;border:2px solid transparent;cursor:none;opacity:.5;transition:opacity .2s,border-color .2s}
-        .modal-thumb.active,.modal-thumb:hover{border-color:var(--gold);opacity:1}
-        .modal-info{padding:38px 30px;display:flex;flex-direction:column}
-        .modal-brand-lbl{font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
-        .modal-name-lbl{font-family:'Barlow Condensed',sans-serif;font-size:1.9rem;font-weight:900;line-height:1;margin-bottom:12px}
-        .modal-price-lbl{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;color:var(--gold);margin-bottom:4px}
-        .modal-stx-lbl{font-size:.5rem;letter-spacing:.14em;color:var(--muted);margin-bottom:18px}
-        .modal-desc-lbl{font-size:.66rem;line-height:1.9;color:var(--muted);border-top:1px solid var(--line);padding-top:18px;margin-bottom:20px}
-        .modal-stock-row{display:flex;align-items:center;gap:8px;margin-bottom:16px}
-        .msd{width:7px;height:7px;border-radius:50%;background:var(--red);flex-shrink:0}
-        .msd.ok{background:#58ff88}
-        .mst{font-size:.52rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
-        .modal-add{width:100%;background:var(--volt);color:var(--ink);font-family:'DM Mono',monospace;font-size:.64rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;border:none;padding:14px;cursor:none;transition:background .25s;margin-top:auto}
-        .modal-add:hover{background:#c8ff22}
-        .modal-add.added{background:var(--gold)}
-        .sold-overlay{position:absolute;inset:0;background:rgba(8,8,8,.55);display:flex;align-items:center;justify-content:center;pointer-events:none}
-        .sold-overlay span{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.2em;color:var(--red);border:2px solid var(--red);padding:6px 24px;transform:rotate(-12deg)}
-
-        /* HERO */
-        .hero{min-height:100vh;display:grid;grid-template-columns:52% 48%;padding-top:68px;overflow:hidden;position:relative}
-        .hero::before{content:'';position:absolute;right:48%;top:0;width:1px;height:100%;background:linear-gradient(to bottom,transparent,var(--gold) 30%,var(--gold) 70%,transparent);opacity:.12}
-        .hero-l{display:flex;flex-direction:column;justify-content:center;padding:80px 52px 80px 72px;z-index:2}
-        .hero-ey{display:flex;align-items:center;gap:14px;font-size:.56rem;letter-spacing:.36em;text-transform:uppercase;color:var(--gold);margin-bottom:26px;opacity:0;animation:rise .7s .1s forwards}
-        .hero-ey::before{content:'';width:26px;height:1px;background:var(--gold)}
-        .hero-title{font-family:'Barlow Condensed',sans-serif;font-size:clamp(5.5rem,10vw,11.5rem);font-weight:900;line-height:.87;opacity:0;animation:rise .8s .25s forwards}
-        .hero-title .plain{color:var(--cream);display:block}
-        .hero-title .gld{color:var(--gold);display:block}
-        .hero-title .out{display:block;color:transparent;-webkit-text-stroke:1.5px var(--cream)}
-        .hero-desc{margin-top:28px;max-width:370px;font-size:.7rem;line-height:1.95;color:var(--muted);opacity:0;animation:rise .7s .45s forwards}
-        .hero-btns{margin-top:40px;display:flex;gap:12px;opacity:0;animation:rise .7s .6s forwards}
-        .btn-solid{background:var(--volt);color:var(--ink);font-family:'DM Mono',monospace;font-size:.62rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;padding:13px 32px;text-decoration:none;display:inline-block;transition:transform .2s,background .2s}
-        .btn-solid:hover{background:#c8ff22;transform:translate(-2px,-2px)}
-        .btn-ghost{background:transparent;color:var(--cream);font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;padding:13px 32px;text-decoration:none;display:inline-block;border:1px solid var(--line);transition:border-color .2s,color .2s}
-        .btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
-        .hero-timer{margin-top:48px;padding-top:32px;border-top:1px solid var(--line);display:flex;align-items:center;gap:18px;opacity:0;animation:rise .7s .8s forwards}
-        .live-dot{width:7px;height:7px;border-radius:50%;background:var(--red);flex-shrink:0;animation:blink 1.4s ease-in-out infinite}
-        @keyframes blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.25;transform:scale(.55)}}
-        .timer-lbl{font-size:.54rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
-        .timer-val{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--volt);letter-spacing:.08em}
-        @keyframes rise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
-
-        /* HERO RIGHT */
-        .hero-r{position:relative;overflow:hidden;background:#0e0e0e}
-        .hero-r-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:22vw;color:rgba(201,162,39,.035);letter-spacing:-.05em;user-select:none;pointer-events:none}
-        .fw{position:absolute;transition:transform .3s}
-        .fw:hover{transform:translateY(-8px) scale(1.04) !important;z-index:20}
-        .fw1{top:9%;left:4%;animation:fa 7s ease-in-out infinite}
-        .fw2{top:6%;left:40%;animation:fb 8.5s ease-in-out infinite}
-        .fw3{top:44%;left:14%;animation:fc 6.5s ease-in-out infinite}
-        .fw4{top:50%;left:50%;animation:fa 9s ease-in-out infinite}
-        .fw5{top:74%;left:26%;animation:fb 7s ease-in-out infinite}
-        @keyframes fa{0%,100%{transform:translateY(0) rotate(-.4deg)}50%{transform:translateY(-13px) rotate(.3deg)}}
-        @keyframes fb{0%,100%{transform:translateY(0) rotate(.4deg)}50%{transform:translateY(-10px) rotate(-.4deg)}}
-        @keyframes fc{0%,100%{transform:translateY(0) rotate(-.3deg)}60%{transform:translateY(-16px) rotate(.4deg)}}
-        .fcard{background:var(--smoke);border:1px solid var(--line);overflow:hidden;position:relative}
-        .fcard img{display:block;width:100%;height:100%;object-fit:cover;filter:contrast(1.06) saturate(.88);transition:transform .5s}
-        .fw:hover .fcard img{transform:scale(1.07)}
-        .fc1{width:196px;height:218px}.fc2{width:166px;height:186px}.fc3{width:188px;height:208px}.fc4{width:152px;height:172px}.fc5{width:140px;height:158px}
-        .fbadge{position:absolute;top:9px;left:9px;font-family:'DM Mono',monospace;font-size:.48rem;letter-spacing:.14em;text-transform:uppercase;padding:3px 9px;font-weight:700}
-        .fb-g{background:var(--gold);color:var(--ink)}.fb-v{background:var(--volt);color:var(--ink)}.fb-r{background:var(--red);color:#fff}.fb-d{background:#1e1e1e;color:var(--muted);border:1px solid var(--dim)}
-        .fmeta{background:rgba(8,8,8,.93);padding:7px 10px;border-top:1px solid var(--line)}
-        .fmeta-name{font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-        .fmeta-price{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--gold)}
-
-        /* TICKER */
-        .ticker{background:var(--gold);color:var(--ink);padding:8px 0;overflow:hidden}
-        .ticker-t{display:flex;white-space:nowrap;animation:roll 26s linear infinite}
-        .ti{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.22em;padding:0 44px}
-        .ts{opacity:.45;margin:0 4px}
-        @keyframes roll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-
-        /* CULTURE */
-        .cult{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;height:300px}
-        .ct{position:relative;overflow:hidden;background:var(--dim)}
-        .ct img{width:100%;height:100%;object-fit:cover;filter:grayscale(.42) contrast(1.1);transition:transform .6s,filter .4s}
-        .ct:hover img{transform:scale(1.08);filter:grayscale(0) contrast(1.12)}
-        .ct-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(8,8,8,.88) 0%,transparent 55%)}
-        .ct-lbl{position:absolute;bottom:18px;left:20px;font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
-        .ct-lbl em{font-style:normal;color:var(--gold)}
-        .ct-sub{position:absolute;bottom:8px;left:20px;font-size:.5rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
-
-        /* PRODUCTS */
-        .products{padding:100px 72px}
-        .sec-hd{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:48px}
-        .sec-tag{font-size:.56rem;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;display:block}
-        .sec-ttl{font-family:'Barlow Condensed',sans-serif;font-size:clamp(3.5rem,6vw,6.5rem);font-weight:900;line-height:.9}
-        .filter-tabs{display:flex;gap:8px;margin-bottom:38px;flex-wrap:wrap}
-        .ftab{background:transparent;border:1px solid var(--line);color:var(--muted);font-family:'DM Mono',monospace;font-size:.54rem;letter-spacing:.15em;text-transform:uppercase;padding:7px 16px;cursor:none;transition:all .2s}
-        .ftab:hover{border-color:var(--gold);color:var(--gold)}
-        .ftab.active{background:var(--gold);border-color:var(--gold);color:var(--ink)}
-        .pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px}
-
-        /* PRODUCT CARD */
-        .pc{background:var(--smoke);position:relative;overflow:hidden;cursor:none;transition:transform .3s}
-        .pc:hover{z-index:10}
-        .pc-imgs{position:relative;overflow:hidden;aspect-ratio:3/4;background:#0f0f0f}
-        .pc-imgs img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .45s,transform .55s;filter:contrast(1.04) saturate(.9);opacity:0}
-        .pc-imgs img.active{opacity:1}
-        .pc:hover .pc-imgs img.active{transform:scale(1.06)}
-        .pc-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:4}
-        .pc-dot{width:5px;height:5px;border-radius:50%;background:rgba(240,232,208,.3);border:none;cursor:none;padding:0;transition:background .2s}
-        .pc-dot.active{background:var(--gold)}
-        .pc-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:4;background:rgba(8,8,8,.78);border:none;color:var(--cream);width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:none;opacity:0;transition:opacity .2s}
-        .pc:hover .pc-nav{opacity:1}
-        .pc-nav.prev{left:8px}.pc-nav.next{right:8px}
-        .pc-ov{position:absolute;inset:0;background:rgba(201,162,39,.07);opacity:0;transition:opacity .3s;display:flex;align-items:flex-end;padding:14px;z-index:3}
-        .pc:hover .pc-ov{opacity:1}
-        .pc-btn{font-family:'DM Mono',monospace;font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border:none;padding:10px;width:100%;cursor:none;transition:background .25s}
-        .pc-btn.avail{background:var(--volt);color:var(--ink)}
-        .pc-btn.avail:hover{background:#c8ff22}
-        .pc-btn.sold{background:#1e1e1e;color:var(--muted);border:1px solid var(--dim)}
-        .pc-btn.adding{animation:btnPulse .4s ease}
-        @keyframes btnPulse{0%{transform:scale(1)}50%{transform:scale(.94)}100%{transform:scale(1)}}
-        .plbl{position:absolute;top:11px;left:11px;z-index:5;font-family:'DM Mono',monospace;font-size:.48rem;letter-spacing:.14em;text-transform:uppercase;padding:4px 9px;font-weight:700}
-        .l-new{background:var(--red);color:#fff}.l-rare{background:var(--volt);color:var(--ink)}.l-collab{background:var(--gold);color:var(--ink)}.l-arch{background:#202020;color:var(--muted);border:1px solid var(--dim)}
-        .psx{position:absolute;bottom:11px;right:11px;z-index:5;font-size:.46rem;letter-spacing:.1em;color:var(--muted);text-align:right}
-        .psx strong{color:var(--gold);font-weight:400}
-        .pc-info{padding:12px 14px 16px;cursor:none}
-        .pc-brand{font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
-        .pc-name{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;margin:4px 0 8px;line-height:1.2}
-        .pc-ft{display:flex;justify-content:space-between;align-items:center}
-        .pc-price{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--gold)}
-        .pc-stock{font-size:.5rem;letter-spacing:.15em;text-transform:uppercase;color:var(--red)}
-        .pc-stock.ok{color:#58ff88}
-        .pc.hidden{display:none}
-
-        /* QUOTE */
-        .qb{display:grid;grid-template-columns:1fr 1fr;background:var(--smoke)}
-        .qv{min-height:540px;position:relative;overflow:hidden;background:#0d0d0d}
-        .qv img{width:100%;height:100%;object-fit:cover;filter:grayscale(.5) contrast(1.1)}
-        .qv-ov{position:absolute;inset:0;background:linear-gradient(90deg,transparent 50%,var(--smoke) 100%)}
-        .qt{padding:76px 64px;display:flex;flex-direction:column;justify-content:center}
-        .q-ey{font-size:.52rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:22px}
-        .q-ttl{font-family:'Barlow Condensed',sans-serif;font-size:clamp(2.6rem,4.2vw,4.8rem);font-weight:900;line-height:.95;margin-bottom:28px}
-        .q-ttl em{font-style:normal;-webkit-text-stroke:1.5px var(--gold);color:transparent}
-        .q-body{font-size:.7rem;line-height:1.95;color:var(--muted);max-width:380px}
-        .q-link{margin-top:32px;display:inline-flex;align-items:center;gap:12px;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);text-decoration:none;transition:gap .2s}
-        .q-link:hover{gap:20px}
-        .q-pills{margin-top:42px;display:flex;gap:22px;padding-top:32px;border-top:1px solid var(--line)}
-        .q-pill{display:flex;align-items:center;gap:6px;font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-        .q-pill-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0}
-
-        /* NAMES */
-        .names-sec{padding:96px 72px;overflow:hidden}
-        .names-inner{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
-        .names-wall{overflow:hidden;max-height:440px;border-left:2px solid var(--gold);padding-left:24px;-webkit-mask:linear-gradient(to bottom,transparent,black 10%,black 90%,transparent);mask:linear-gradient(to bottom,transparent,black 10%,black 90%,transparent)}
-        .names-track{display:flex;flex-direction:column;animation:scrollUp 22s linear infinite}
-        .names-track:hover{animation-play-state:paused}
-        @keyframes scrollUp{0%{transform:translateY(0)}100%{transform:translateY(-50%)}}
-        .n-item{font-family:'Barlow Condensed',sans-serif;font-size:2.6rem;font-weight:900;line-height:1.08;letter-spacing:.02em;white-space:nowrap;padding:3px 0;cursor:none;display:flex;align-items:center;gap:10px;text-decoration:none;transition:gap .2s}
-        .n-rap {color:rgba(181,255,0,.2); -webkit-text-stroke:1px rgba(181,255,0,.3)}
-        .n-foot{color:rgba(201,162,39,.2);-webkit-text-stroke:1px rgba(201,162,39,.3)}
-        .n-art {color:rgba(255,100,80,.22);-webkit-text-stroke:1px rgba(255,100,80,.35)}
-        .n-nfl {color:rgba(100,180,255,.2);-webkit-text-stroke:1px rgba(100,180,255,.3)}
-        .n-skate{color:rgba(255,150,50,.2);-webkit-text-stroke:1px rgba(255,150,50,.3)}
-        .n-item:hover{-webkit-text-stroke:0px transparent !important;gap:18px}
-        .n-rap:hover  {color:var(--volt)}
-        .n-foot:hover {color:var(--gold)}
-        .n-art:hover  {color:#ff6450}
-        .n-nfl:hover  {color:#6ab4ff}
-        .n-skate:hover{color:#ff9632}
-        .n-cat{font-family:'DM Mono',monospace;font-size:.42rem;letter-spacing:.14em;text-transform:uppercase;padding:2px 7px;white-space:nowrap;flex-shrink:0}
-        .c-rap  {background:rgba(181,255,0,.12); color:var(--volt)}
-        .c-foot {background:rgba(201,162,39,.12);color:var(--gold)}
-        .c-art  {background:rgba(255,100,80,.12); color:#ff6450}
-        .c-nfl  {background:rgba(100,180,255,.12);color:#6ab4ff}
-        .c-skate{background:rgba(255,150,50,.12);color:#ff9632}
-        .n-arrow{font-size:1rem;opacity:0;transition:opacity .2s;margin-left:4px;color:inherit}
-        .n-item:hover .n-arrow{opacity:1}
-
-        /* NEWSLETTER */
-        .nl{background:var(--gold);padding:76px 80px;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
-        .nl-ttl{font-family:'Barlow Condensed',sans-serif;font-size:clamp(2.8rem,4.8vw,5rem);font-weight:900;line-height:.9;color:var(--ink)}
-        .nl-sub{font-size:.7rem;line-height:1.8;color:rgba(0,0,0,.52);margin-top:14px}
-        .nl-form{display:flex;flex-direction:column;gap:9px}
-        .nl-in{background:rgba(0,0,0,.12);border:1px solid rgba(0,0,0,.18);color:var(--ink);font-family:'DM Mono',monospace;font-size:.7rem;padding:12px 17px;outline:none;transition:background .2s}
-        .nl-in::placeholder{color:rgba(0,0,0,.36)}
-        .nl-in:focus{background:rgba(0,0,0,.22)}
-        .nl-btn{background:var(--ink);color:var(--volt);font-family:'DM Mono',monospace;font-size:.62rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;padding:13px;border:none;cursor:none;transition:background .2s}
-        .nl-btn:hover{background:#181818}
-        .nl-note{font-size:.52rem;color:rgba(0,0,0,.38);letter-spacing:.1em}
-
-        /* FOOTER */
-        footer{background:var(--smoke);padding:60px 72px 38px;border-top:1px solid var(--line)}
-        .ft-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:52px;margin-bottom:52px}
-        .ft-logo{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;letter-spacing:.22em;color:var(--cream);margin-bottom:12px}
-        .ft-logo em{font-style:normal;color:var(--gold)}
-        .ft-desc{font-size:.65rem;line-height:1.9;color:var(--muted);max-width:225px}
-        .ft-h{font-size:.55rem;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
-        .ft-ul{list-style:none;display:flex;flex-direction:column;gap:9px}
-        .ft-ul a{font-size:.65rem;color:var(--muted);text-decoration:none;transition:color .2s}
-        .ft-ul a:hover{color:var(--cream)}
-        .ft-bot{display:flex;justify-content:space-between;align-items:center;padding-top:26px;border-top:1px solid var(--line)}
-        .ft-copy{font-size:.56rem;color:var(--muted);letter-spacing:.1em}
-        .ft-soc{display:flex;gap:12px}
-        .soc-a{width:32px;height:32px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:.72rem;text-decoration:none;color:var(--muted);transition:border-color .2s,color .2s}
-        .soc-a:hover{border-color:var(--gold);color:var(--gold)}
-
-        /* REVEAL */
-        .rv{opacity:0;transform:translateY(34px);transition:opacity .7s ease,transform .7s ease}
-        .rv.on{opacity:1;transform:none}
-
-        /* GHOST ARCHIVE BRAND UPGRADE */
-        .logo{letter-spacing:.12em;font-size:1.55rem}
-        .logo em{margin-left:.18em}
-        .celebrity-avatar{
-            width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0;
-            border:1px solid rgba(201,162,39,.5);background:#111;filter:grayscale(.2) contrast(1.08);
-        }
-        .n-item:hover .celebrity-avatar{border-color:var(--volt);filter:grayscale(0) contrast(1.1)}
-        .pc-imgs{cursor:pointer}
-        @media(max-width:900px){
-            nav{padding:14px 18px}.nav-links{display:none}.logo{font-size:1.2rem}
-            .hero{grid-template-columns:1fr}.hero-l{padding:110px 24px 60px}.hero-r{min-height:520px}
-            .pgrid{grid-template-columns:repeat(2,1fr)}.products{padding:70px 22px}
-            .names-inner,.qb,.nl{grid-template-columns:1fr}.names-sec{padding:70px 22px}
-            .cart-panel{width:100%}.modal{grid-template-columns:1fr}
-        }
-        @media(max-width:560px){.pgrid{grid-template-columns:1fr}.hero-title{font-size:4.8rem}.n-item{font-size:1.8rem}}
-
-
-        /* GUARANTEED VISUAL PRODUCT SYSTEM */
-        .pc-imgs img,.modal-main,.modal-thumb,.fcard img{background:#111}
-        .product-photo-badge{
-            position:absolute;right:10px;top:10px;z-index:6;font-size:.44rem;letter-spacing:.14em;
-            color:var(--ink);background:var(--gold);padding:4px 8px;text-transform:uppercase;font-weight:700;
-        }
-
-    </style>
-</head>
-<body>
-<div id="cur"></div>
-<div id="cur-r"></div>
-<div id="addOverlay"></div>
-
-<!-- CART -->
-<div class="cart-overlay" id="cartOv" onclick="closeCart()"></div>
-<div class="cart-panel" id="cartPanel">
-    <div class="cart-hdr">
-        <div class="cart-ttl">YOUR VAULT BAG</div>
-        <button class="cart-close" onclick="closeCart()">✕</button>
-    </div>
-    <div class="cart-items" id="cartItems">
-        <div class="cart-empty"><div class="cart-empty-ttl">BAG IS EMPTY</div><div class="cart-empty-sub">Add rare vault pieces</div></div>
-    </div>
-    <div class="cart-foot">
-        <div class="cart-sub-row"><span class="cart-sub-lbl">Subtotaal</span><span class="cart-sub-val" id="cartTotal">€0</span></div>
-        <button class="chk-btn" onclick="checkout()">Checkout →</button>
-        <div class="cart-note3">// Worldwide shipping · 100% authenticated</div>
-    </div>
-</div>
-
-<!-- MODAL -->
-<div class="modal-overlay" id="modalOv" onclick="handleModalClick(event)">
-    <div class="modal" id="modal">
-        <button class="modal-close" onclick="closeModal()">✕</button>
-        <div class="modal-imgs" id="modalImgContainer">
-            <img class="modal-main" id="modalMain" src="" alt=""/>
-            <div class="modal-thumbs" id="modalThumbs"></div>
-        </div>
-        <div class="modal-info">
-            <div class="modal-brand-lbl" id="mBrand"></div>
-            <div class="modal-name-lbl" id="mName"></div>
-            <div class="modal-price-lbl" id="mPrice"></div>
-            <div class="modal-stx-lbl" id="mStx"></div>
-            <div class="modal-desc-lbl" id="mDesc"></div>
-            <div class="modal-stock-row"><div class="msd" id="mSd"></div><div class="mst" id="mSt"></div></div>
-            <button class="modal-add" id="mAddBtn" onclick="addFromModal()">Add to Cart →</button>
-        </div>
-    </div>
-</div>
-
-<!-- NAV -->
-<nav>
-    <a class="logo" href="#">GHOST<em>ARCHIVE</em></a>
-    <ul class="nav-links">
-        <li><a href="#">Drops</a></li><li><a href="#">Accessories</a></li>
-        <li><a href="#">Culture</a></li><li><a href="#">Archive</a></li>
-    </ul>
-    <div class="nav-right">
-        <button class="nav-cta">Next Drop ↗</button>
-        <button class="cart-btn" id="cartBtnEl" onclick="openCart()">Bag <span class="cart-count" id="cartCount">0</span></button>
-    </div>
-</nav>
-
-<!-- HERO -->
-<section class="hero">
-    <div class="hero-l">
-        <div class="hero-ey">Rare. Curated. Certified.</div>
-        <h1 class="hero-title"><span class="plain">GHOST</span><span class="gld">ARCHIVE</span><span class="out">VAULT</span></h1>
-        <p class="hero-desc">A dark luxury archive voor rare streetwear pieces, celebrity-inspired fits en verified grails. Geen fakes. Geen reproductions.</p>
-        <div class="hero-btns"><a href="#products" class="btn-solid">Enter the Vault</a><a href="#" class="btn-ghost">Bekijk Vault</a></div>
-        <div class="hero-timer"><div class="live-dot"></div><span class="timer-lbl">Next drop in</span><span class="timer-val" id="tval">03:44:18</span></div>
-    </div>
-    <div class="hero-r">
-        <div class="hero-r-bg">GHOST</div>
-        <div class="fw fw1"><div class="fcard fc1"><img src="https://images.stockx.com/images/Supreme-Box-Logo-New-Era-FW24-Black.jpg?fit=fill&bg=FFFFFF&w=400&h=400&auto=format,compress&q=85" alt="" loading="lazy"/><div class="fbadge fb-r">Sold Out</div></div><div class="fmeta"><div class="fmeta-name">Supreme × New Era FW24</div><div class="fmeta-price">€89</div></div></div>
-        <div class="fw fw2"><div class="fcard fc2"><img src="https://images.stockx.com/images/Supreme-The-North-Face-RTG-Backpack-Bright-Red.jpg?fit=fill&bg=FFFFFF&w=400&h=400&auto=format,compress&q=85" alt="" loading="lazy"/><div class="fbadge fb-v">1 of 3</div></div><div class="fmeta"><div class="fmeta-name">Supreme × TNF RTG</div><div class="fmeta-price">€255</div></div></div>
-        <div class="fw fw3"><div class="fcard fc3"><img src="https://images.stockx.com/images/BAPE-ABC-Camo-Shoulder-Bag-Navy.jpg?fit=fill&bg=FFFFFF&w=400&h=400&auto=format,compress&q=85" alt="" loading="lazy"/><div class="fbadge fb-g">BAPE</div></div><div class="fmeta"><div class="fmeta-name">BAPE ABC Camo Bag</div><div class="fmeta-price">€145</div></div></div>
-        <div class="fw fw4"><div class="fcard fc4"><img src="https://images.stockx.com/images/Stussy-Stock-Lock-Deep-Bucket-Hat-Black.jpg?fit=fill&bg=FFFFFF&w=400&h=400&auto=format,compress&q=85" alt="" loading="lazy"/><div class="fbadge fb-d">Stüssy</div></div><div class="fmeta"><div class="fmeta-name">Stüssy Bucket Hat</div><div class="fmeta-price">€62</div></div></div>
-        <div class="fw fw5"><div class="fcard fc5"><img src="https://images.stockx.com/images/Travis-Scott-Highest-In-The-Room-Cactus-Jack-Hat-Brown.jpg?fit=fill&bg=FFFFFF&w=400&h=400&auto=format,compress&q=85" alt="" loading="lazy"/><div class="fbadge fb-v">Cactus Jack</div></div><div class="fmeta"><div class="fmeta-name">Travis Scott Hat</div><div class="fmeta-price">€280</div></div></div>
-    </div>
-</section>
-
-<!-- TICKER -->
-<div class="ticker"><div class="ticker-t">
-    <span class="ti">SUPREME FW25</span><span class="ts">✦</span><span class="ti">PALACE DROP</span><span class="ts">✦</span><span class="ti">BAPE × KITH</span><span class="ts">✦</span><span class="ti">PHARRELL APPROVED</span><span class="ts">✦</span><span class="ti">OFF-WHITE GRAILS</span><span class="ts">✦</span><span class="ti">TRAVIS SCOTT PICKS</span><span class="ts">✦</span><span class="ti">100% AUTHENTICATED</span><span class="ts">✦</span><span class="ti">CARHARTT WIP</span><span class="ts">✦</span><span class="ti">HUMAN MADE</span><span class="ts">✦</span><span class="ti">GHOST ARCHIVE COLLECTIVE</span><span class="ts">✦</span>
-    <span class="ti">SUPREME FW25</span><span class="ts">✦</span><span class="ti">PALACE DROP</span><span class="ts">✦</span><span class="ti">BAPE × KITH</span><span class="ts">✦</span><span class="ti">PHARRELL APPROVED</span><span class="ts">✦</span><span class="ti">OFF-WHITE GRAILS</span><span class="ts">✦</span><span class="ti">TRAVIS SCOTT PICKS</span><span class="ts">✦</span><span class="ti">100% AUTHENTICATED</span><span class="ts">✦</span><span class="ti">CARHARTT WIP</span><span class="ts">✦</span><span class="ti">HUMAN MADE</span><span class="ts">✦</span><span class="ti">GHOST ARCHIVE COLLECTIVE</span><span class="ts">✦</span>
-</div></div>
-
-<!-- CULTURE -->
-<div class="cult rv">
-    <div class="ct"><img src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=800&q=80" alt="" loading="lazy"/><div class="ct-ov"></div><div class="ct-lbl">STREET <em>CULTURE</em></div><div class="ct-sub">Fashion als identiteit</div></div>
-    <div class="ct"><img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=800&q=80" alt="" loading="lazy"/><div class="ct-ov"></div><div class="ct-lbl">RARE <em>PIECES</em></div><div class="ct-sub">Alleen originals</div></div>
-    <div class="ct"><img src="https://images.unsplash.com/photo-1523398002811-999ca8dec234?w=800&q=80" alt="" loading="lazy"/><div class="ct-ov"></div><div class="ct-lbl">DRIP <em>GODS</em></div><div class="ct-sub">Zoals de pros het dragen</div></div>
-</div>
-
-<!-- PRODUCTS -->
-<section class="products" id="products">
-    <div class="sec-hd rv">
-        <div><span class="sec-tag">— Curated pieces. Verified energy.</span><h2 class="sec-ttl">VAULT<br>INVENTORY</h2></div>
-        <a href="#" class="btn-ghost">View All →</a>
-    </div>
-    <div class="filter-tabs rv" id="filterTabs"></div>
-    <div class="pgrid" id="productGrid"></div>
-</section>
-
-<!-- QUOTE -->
-<div class="qb">
-    <div class="qv rv"><img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=900&q=80" alt="" loading="lazy"/><div class="qv-ov"></div></div>
-    <div class="qt rv">
-        <div class="q-ey">— De cultuur leeft hier</div>
-        <h2 class="q-ttl">Seen in the culture.<br>Stored in the <em>vault</em>.<br>Now yours.</h2>
-        <p class="q-body">Van NIGO-era fits tot Travis, Neymar en Carti-inspired pieces. Elk stuk voelt als een archive find: zorgvuldig gekozen, premium gepresenteerd en klaar voor je rotation.</p>
-        <a href="#" class="q-link">Open de vault →</a>
-        <div class="q-pills"><div class="q-pill"><div class="q-pill-dot"></div>100% Authentic</div><div class="q-pill"><div class="q-pill-dot"></div>Worldwide Ship</div><div class="q-pill"><div class="q-pill-dot"></div>Secure Pay</div></div>
-    </div>
-</div>
-
-<!-- NAMES -->
-<section class="names-sec rv">
-    <div class="names-inner">
-        <div>
-            <span class="sec-tag">— Gezien op de beste</span>
-            <h2 class="sec-ttl" style="font-family:'Barlow Condensed',sans-serif;font-weight:900;line-height:.9;">WHO ENTERS<br>THE VAULT</h2>
-            <p style="font-size:.7rem;line-height:1.95;color:var(--muted);max-width:360px;margin-top:22px;">Klik op een naam om hun profiel te openen. GHOST ARCHIVE draait om pieces die leven in muziek, sport, mode en internet culture.</p>
-            <a href="#products" class="btn-solid" style="margin-top:34px;display:inline-block;">Shop the Vault</a>
-        </div>
-        <div class="names-wall"><div class="names-track" id="namesTrack"></div></div>
-    </div>
-</section>
-
-<!-- NEWSLETTER -->
-<div class="nl">
-    <div class="rv"><h2 class="nl-ttl">NOOIT EEN VAULT DROP MISSEN.</h2><p class="nl-sub">Meld je aan voor vault alerts. Alleen rare drops, archive finds en pieces die het waard zijn.</p></div>
-    <div class="nl-form rv">
-        <input type="email" class="nl-in" placeholder="jouw@email.com"/>
-        <input type="text" class="nl-in" placeholder="Instagram handle (optioneel)"/>
-        <button class="nl-btn" onclick="nlSignup(this)">Vault Alert Activeren →</button>
-        <span class="nl-note">// NO SPAM. REAL DROPS ONLY. UNSUBSCRIBE ANYTIME.</span>
-    </div>
-</div>
-
-<!-- FOOTER -->
-<footer>
-    <div class="ft-grid">
-        <div><div class="ft-logo">GHOST<em>ARCHIVE</em></div><p class="ft-desc">Rare streetwear pieces from the culture vault. Curated globally. Shipped worldwide. Authenticated always.</p></div>
-        <div><div class="ft-h">Shop</div><ul class="ft-ul"><li><a href="#">New Drops</a></li><li><a href="#">Archive</a></li><li><a href="#">Headwear</a></li><li><a href="#">Bags</a></li><li><a href="#">Jewelry</a></li></ul></div>
-        <div><div class="ft-h">Info</div><ul class="ft-ul"><li><a href="#">Our Story</a></li><li><a href="#">Authentication</a></li><li><a href="#">Shipping</a></li><li><a href="#">Returns</a></li><li><a href="#">FAQ</a></li></ul></div>
-        <div><div class="ft-h">Contact</div><ul class="ft-ul"><li><a href="#">vault@ghost.archive</a></li><li><a href="#">@ghost.archive</a></li><li><a href="#">The Vault, NL</a></li></ul></div>
-    </div>
-    <div class="ft-bot"><span class="ft-copy">© 2026 GHOST ARCHIVE — All rights reserved. All pieces authenticated.</span><div class="ft-soc"><a href="#" class="soc-a">IG</a><a href="#" class="soc-a">TW</a><a href="#" class="soc-a">TK</a></div></div>
-</footer>
-
+        :root{{--ink:#080808;--cream:#f0e8d0;--gold:#c9a227;--volt:#b5ff00;--smoke:#141414;--muted:#777;--line:rgba(240,232,208,.13)}}
+        *{{box-sizing:border-box;margin:0;padding:0}}html{{scroll-behavior:smooth}}body{{background:var(--ink);color:var(--cream);font-family:'DM Mono',monospace;overflow-x:hidden}}body:before{{content:"";position:fixed;inset:0;z-index:-2;background:radial-gradient(circle at 80% 10%,rgba(201,162,39,.2),transparent 36%),linear-gradient(180deg,#080808,#101010)}}
+        nav{{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:18px 56px;background:rgba(8,8,8,.9);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}}.logo{{font-family:'Bebas Neue';font-size:2rem;letter-spacing:.18em;color:var(--cream);text-decoration:none}}.logo em{{font-style:normal;color:var(--gold);margin-left:.2em}}.nav-links{{display:flex;gap:28px;list-style:none}}.nav-links a{{color:var(--muted);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;text-decoration:none}}.cart-btn{{background:transparent;border:1px solid var(--line);color:var(--cream);padding:9px 18px;font-family:'DM Mono';font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;cursor:pointer}}
+        .hero{{min-height:100vh;display:grid;grid-template-columns:52% 48%;padding:120px 72px 70px;gap:40px;align-items:center}}.tag{{display:block;color:var(--gold);font-size:.56rem;letter-spacing:.32em;text-transform:uppercase;margin-bottom:12px}}h1{{font-family:'Barlow Condensed';font-size:clamp(5rem,10vw,11rem);font-weight:900;line-height:.86}}h1 span{{display:block}}.gld{{color:var(--gold)}}.out{{color:transparent;-webkit-text-stroke:1.4px var(--cream)}}.hero p{{max-width:450px;color:var(--muted);line-height:1.9;font-size:.72rem;margin:28px 0 36px}}.btn{{display:inline-block;padding:14px 30px;text-transform:uppercase;letter-spacing:.15em;font-size:.65rem;text-decoration:none;background:var(--volt);color:#000;font-weight:900}}
+        .hero-grid{{display:grid;grid-template-columns:1fr 1fr;gap:12px;transform:rotate(-2deg)}}.hero-card{{background:var(--smoke);border:1px solid var(--line);padding:9px}}.hero-card:nth-child(even){{transform:translateY(38px)}}.hero-card img{{width:100%;aspect-ratio:3/4;object-fit:cover;display:block}}.hero-card b{{display:block;color:var(--gold);font-family:'Barlow Condensed';font-size:1.1rem;margin-top:8px}}
+        .ticker{{background:var(--gold);color:#000;overflow:hidden;padding:9px 0}}.ticker div{{white-space:nowrap;animation:roll 24s linear infinite;font-family:'Bebas Neue';font-size:1.05rem;letter-spacing:.22em}}@keyframes roll{{to{{transform:translateX(-50%)}}}}
+        section{{padding:92px 72px}}h2{{font-family:'Barlow Condensed';font-size:clamp(3.5rem,6vw,6.5rem);font-weight:900;line-height:.9;margin-bottom:35px}}.shop-layout{{display:grid;grid-template-columns:260px 1fr;gap:24px;align-items:start}}.filter-box{{position:sticky;top:90px;background:var(--smoke);border:1px solid var(--line);padding:20px}}.filter-title{{font-family:'Barlow Condensed';font-size:1.5rem;font-weight:900;margin:10px 0}}.filter-sub{{font-size:.56rem;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;margin-bottom:18px}}.brand-list,.cat-list{{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}}
+        .brand-btn,.cat-btn{{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#0f0f0f;color:var(--cream);border:1px solid var(--line);padding:10px 12px;font-family:'DM Mono';font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;text-align:left}}.brand-btn.active,.cat-btn.active,.brand-btn:hover,.cat-btn:hover{{border-color:var(--gold);background:var(--gold);color:#000}}.mark-small{{width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#000;color:var(--gold);border:1px solid rgba(201,162,39,.55);font-weight:900;font-size:.55rem}}
+        .pgrid{{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}}.pc{{background:var(--smoke);border:1px solid #151515;overflow:hidden}}.pc-img{{position:relative;aspect-ratio:3/4;background:#111;overflow:hidden;cursor:pointer}}.pc-img img{{width:100%;height:100%;object-fit:cover;display:block;transition:.45s}}.pc:hover .pc-img img{{transform:scale(1.06)}}.brand-mark{{position:absolute;top:12px;left:12px;background:#050505;color:var(--gold);border:1px solid var(--gold);width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed';font-weight:900;font-size:1rem}}.photo-label{{position:absolute;right:10px;top:13px;background:var(--gold);color:#000;font-size:.48rem;text-transform:uppercase;letter-spacing:.12em;padding:5px 8px;font-weight:800}}.pc-info{{padding:14px}}.pc-brand{{color:var(--muted);font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;display:flex;align-items:center;gap:7px}}.pc-name{{font-family:'Barlow Condensed';font-size:1.15rem;font-weight:900;line-height:1.08;margin:8px 0 12px}}.pc-ft{{display:flex;align-items:center;justify-content:space-between}}.price{{font-family:'Bebas Neue';font-size:1.55rem;color:var(--gold)}}.stock{{font-size:.48rem;color:var(--volt);letter-spacing:.14em;text-transform:uppercase}}.add{{width:100%;margin-top:14px;background:var(--volt);color:#000;border:0;padding:12px;font-family:'DM Mono';font-size:.6rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}}
+        .names-sec{{overflow:hidden}}.names-inner{{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}}.names-wall{{overflow:hidden;max-height:440px;border-left:2px solid var(--gold);padding-left:24px;-webkit-mask:linear-gradient(to bottom,transparent,black 10%,black 90%,transparent);mask:linear-gradient(to bottom,transparent,black 10%,black 90%,transparent)}}.names-track{{display:flex;flex-direction:column;animation:scrollUp 22s linear infinite}}.names-track:hover{{animation-play-state:paused}}@keyframes scrollUp{{0%{{transform:translateY(0)}}100%{{transform:translateY(-50%)}}}}.n-item{{font-family:'Barlow Condensed';font-size:2.6rem;font-weight:900;line-height:1.08;letter-spacing:.02em;white-space:nowrap;padding:3px 0;display:flex;align-items:center;gap:10px;text-decoration:none;transition:gap .2s}}.n-item:hover{{gap:18px}}.n-rap{{color:rgba(181,255,0,.25);-webkit-text-stroke:1px rgba(181,255,0,.36)}}.n-foot{{color:rgba(201,162,39,.23);-webkit-text-stroke:1px rgba(201,162,39,.36)}}.n-art{{color:rgba(255,100,80,.26);-webkit-text-stroke:1px rgba(255,100,80,.38)}}.n-cat{{font-family:'DM Mono';font-size:.42rem;letter-spacing:.14em;text-transform:uppercase;padding:2px 7px;white-space:nowrap}}.c-rap{{background:rgba(181,255,0,.12);color:var(--volt)}}.c-foot{{background:rgba(201,162,39,.12);color:var(--gold)}}.c-art{{background:rgba(255,100,80,.12);color:#ff6450}}.n-arrow{{font-size:1rem;opacity:0;transition:.2s}}.n-item:hover .n-arrow{{opacity:1}}
+        .culture{{display:grid;grid-template-columns:1fr 1fr;background:var(--smoke);padding:0}}.culture div{{padding:80px 72px}}.culture p{{color:var(--muted);line-height:1.85;font-size:.72rem;margin-top:20px}}.nl{{background:var(--gold);color:#000;display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center}}.nl p{{color:rgba(0,0,0,.55);font-size:.72rem;line-height:1.8;margin-top:15px}}.nl input{{width:100%;padding:14px;margin-bottom:10px;background:rgba(0,0,0,.13);border:1px solid rgba(0,0,0,.22);font-family:'DM Mono'}}.nl button{{width:100%;padding:14px;background:#080808;color:var(--volt);border:0;font-weight:900;letter-spacing:.13em;text-transform:uppercase}}
+        footer{{background:var(--smoke);border-top:1px solid var(--line);padding:56px 72px;color:var(--muted);display:flex;justify-content:space-between;gap:40px;flex-wrap:wrap}}footer b{{font-family:'Bebas Neue';font-size:2rem;letter-spacing:.16em;color:var(--cream)}}footer em{{font-style:normal;color:var(--gold)}}.modal{{position:fixed;inset:0;background:rgba(0,0,0,.86);z-index:80;display:none;align-items:center;justify-content:center;padding:25px}}.modal.open{{display:flex}}.mbox{{width:min(920px,100%);background:var(--smoke);border:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;position:relative}}.mbox img{{width:100%;aspect-ratio:1;object-fit:cover}}.mtext{{padding:36px}}.close{{position:absolute;top:12px;right:12px;background:#000;color:#fff;border:1px solid var(--line);padding:8px 11px;cursor:pointer;z-index:3}}.cart{{position:fixed;right:0;top:0;bottom:0;width:410px;z-index:90;background:var(--smoke);border-left:1px solid var(--line);transform:translateX(110%);transition:.35s;padding:26px}}.cart.open{{transform:none}}.cart h3{{font-family:'Barlow Condensed';font-size:2rem;margin-bottom:20px}}.ci{{display:grid;grid-template-columns:58px 1fr auto;gap:10px;align-items:center;border-bottom:1px solid var(--line);padding:12px 0}}.ci img{{width:58px;height:68px;object-fit:cover}}.total{{font-family:'Bebas Neue';font-size:2rem;color:var(--gold);margin-top:20px}}
+        @media(max-width:1050px){{.shop-layout,.names-inner{{grid-template-columns:1fr}}.filter-box{{position:relative;top:auto}}.brand-list,.cat-list{{display:grid;grid-template-columns:repeat(3,1fr)}}.pgrid{{grid-template-columns:repeat(2,1fr)}}}}@media(max-width:850px){{nav{{padding:14px 20px}}.nav-links{{display:none}}.hero{{grid-template-columns:1fr;padding:110px 24px 60px}}section{{padding:70px 24px}}.culture,.nl,.mbox{{grid-template-columns:1fr}}.culture div{{padding:60px 24px}}.cart{{width:100%}}}}@media(max-width:560px){{.pgrid,.brand-list,.cat-list{{grid-template-columns:1fr}}h1{{font-size:4.8rem}}.hero-grid{{grid-template-columns:1fr 1fr}}.n-item{{font-size:1.8rem}}}}
+    </style></head><body>
+<nav><a class="logo" href="#">GHOST<em>ARCHIVE</em></a><ul class="nav-links"><li><a href="#products">Shop</a></li><li><a href="#brands">Merken</a></li><li><a href="#profiles">Profiles</a></li></ul><button class="cart-btn" onclick="toggleCart()">Bag <span id="cartCount">0</span></button></nav>
+<section class="hero"><div><span class="tag">Embedded photos · no broken links</span><h1><span>GHOST</span><span class="gld">ARCHIVE</span><span class="out">VAULT</span></h1><p>Deze versie heeft productbeelden ingebouwd in het HTML-bestand zelf. Je ziet dus wél foto’s/beelden, ook zonder externe afbeeldingssites. Headwear blijft headwear.</p><a href="#products" class="btn">Shop de Vault</a></div><div class="hero-grid"><div class="hero-card"><img src="{products[0]['img']}"><b>Beanie</b></div><div class="hero-card"><img src="{products[1]['img']}"><b>Backpack</b></div><div class="hero-card"><img src="{products[6]['img']}"><b>Belt</b></div><div class="hero-card"><img src="{products[3]['img']}"><b>Cap</b></div></div></section>
+<div class="ticker"><div>GHOST ARCHIVE ✦ EMBEDDED PRODUCT IMAGES ✦ NO BROKEN LINKS ✦ BRAND FILTERS ✦ CELEBRITY WALL ✦ GHOST ARCHIVE ✦ EMBEDDED PRODUCT IMAGES ✦ NO BROKEN LINKS ✦ BRAND FILTERS ✦ CELEBRITY WALL ✦</div></div>
+<section id="products"><span class="tag">Images included inside the site</span><h2>VAULT<br>INVENTORY</h2><div class="shop-layout" id="brands"><aside class="filter-box"><div class="filter-title">MERKEN</div><div class="filter-sub">Kies een merk</div><div class="brand-list" id="brandList"></div><div class="filter-title">CATEGORIE</div><div class="filter-sub">Kies type product</div><div class="cat-list" id="catList"></div></aside><div class="pgrid" id="productGrid"></div></div></section>
+<section class="names-sec" id="profiles"><div class="names-inner"><div><span class="tag">Zoals de vorige versie</span><h2>WHO ENTERS<br>THE VAULT</h2><p style="color:var(--muted);line-height:1.9;max-width:380px">De celebrity-lijst is terug als bewegende wall. Klik op een naam om het profiel te openen.</p></div><div class="names-wall"><div class="names-track" id="namesTrack"></div></div></div></section>
+<section class="culture"><div><span class="tag">Geen lege foto’s</span><h2>ALLES<br>ZICHTBAAR</h2><p>De productbeelden staan als data in de HTML zelf. Daardoor verdwijnen ze niet door geblokkeerde externe links.</p></div><div><span class="tag">Categorie klopt</span><h2>GEEN SHIRTS<br>BIJ HATS</h2><p>Beanies, caps, backpacks, fanny packs, belts, bandanas en chains hebben elk hun eigen beeldtype.</p></div></section>
+<section class="nl"><div><h2>NOOIT EEN VAULT DROP MISSEN.</h2><p>Meld je aan voor drops, archive finds en nieuwe merken.</p></div><form onsubmit="event.preventDefault();alert('Vault alert activated')"><input type="email" placeholder="jouw@email.com"><input type="text" placeholder="Instagram handle"><button>Vault Alert Activeren</button></form></section>
+<footer><div><b>GHOST<em>ARCHIVE</em></b><p>Complete AI-built streetwear vault.</p></div><div>vault@ghostarchive.store<br>@ghost.archive<br>The Vault, NL</div><div>© 2026 GHOST ARCHIVE</div></footer>
+<div class="modal" id="modal" onclick="closeModal(event)"><div class="mbox"><button class="close" onclick="closeModal(event)">✕</button><img id="modalImg"><div class="mtext"><div class="brand-mark" id="modalMark" style="position:static;margin-bottom:16px"></div><div class="pc-brand" id="modalBrand"></div><div class="pc-name" id="modalName" style="font-size:2.1rem"></div><div class="price" id="modalPrice"></div><p id="modalDesc" style="color:var(--muted);line-height:1.8;margin:22px 0"></p><button class="add" id="modalAdd">Add to Bag</button></div></div></div>
+<div class="cart" id="cart"><button class="close" onclick="toggleCart()">✕</button><h3>YOUR VAULT BAG</h3><div id="cartItems"></div><div class="total" id="total">€0</div></div>
 <script>
-    // ══════════════════════════════════
-    // PRODUCTS — 16 items, guaranteed img URLs
-    // ══════════════════════════════════
-    const PRODUCTS=[
-        {id:1,cat:'headwear',label:'FW24',lc:'l-new',brand:'Supreme × New Era',name:'Box Logo Beanie FW24 — Black',price:89,stockx:89,stock:'2 left',ok:false,
-            desc:'Iconic Supreme box logo beanie uit FW24 met New Era samenwerking. 100% geauthenticeerd.',
-            imgs:['https://images.stockx.com/images/Supreme-Box-Logo-New-Era-FW24-Black.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/Supreme-New-Era-Box-Logo-Beanie-Black-FW18.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/Supreme-Motion-Logo-Beanie-SS23-Black.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2']},
-
-        {id:2,cat:'bags',label:'Collab',lc:'l-collab',brand:'Supreme × The North Face',name:'RTG Backpack Bright Red SS20',price:255,stockx:255,stock:'1 left',ok:false,
-            desc:'Supreme × TNF RTG Backpack SS20. Waterbestendig Cordura nylon. Één van de meest gezochte collab bags ooit.',
-            imgs:['https://images.stockx.com/images/Supreme-The-North-Face-RTG-Backpack-Bright-Red.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/The-North-Face-x-Supreme-RTG-Backpack-Pink.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/Supreme-The-North-Face-Summit-Series-Rescue-Chugach-16-Backpack-Red.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2']},
-
-        {id:3,cat:'headwear',label:'BAPE',lc:'l-collab',brand:'A Bathing Ape',name:'Double Visor Shark Snapback — Black',price:138,stockx:130,stock:'3 left',ok:true,
-            desc:'BAPE Double Visor Shark Snapback. Het iconische haai design. Gedragen door Jay-Z, Pharrell en elke rapper van de afgelopen 20 jaar.',
-            imgs:['https://images.stockx.com/images/Bape-Double-Visor-Shark-Snapback-Cap-Black.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/BAPE-Double-Visor-Shark-Snapback-Cap-Red.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/A-Bathing-Ape-BAPE-Double-Visor-Full-Zip-Hoodie-Green-Camo.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2']},
-
-        {id:4,cat:'bags',label:'SS23',lc:'l-new',brand:'A Bathing Ape',name:'ABC Camo Shoulder Bag — Navy SS23',price:145,stockx:145,stock:'In stock',ok:true,
-            desc:'BAPE ABC Camo crossbody bag uit SS23. Het meest herkenbare camo patroon in streetwear.',
-            imgs:['https://images.stockx.com/images/BAPE-ABC-Camo-Shoulder-Bag-Navy.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/BAPE-ABC-Camo-Shoulder-Bag-Navy-SS23.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/BAPE-ABC-Camo-Shoulder-Bag-Blue.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2']},
-
-        {id:5,cat:'headwear',label:'Cactus Jack',lc:'l-rare',brand:'Travis Scott × Jordan',name:'Cactus Jack Highest Hat — Brown',price:280,stockx:275,stock:'1 left',ok:false,
-            desc:'Travis Scott Cactus Jack Highest In The Room hat FW19. Absolute cult piece. Gezien op Travis zelf, Carti en Uzi.',
-            imgs:['https://images.stockx.com/images/Travis-Scott-Highest-In-The-Room-Cactus-Jack-Hat-Brown.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/Travis-Scott-Jordan-Cactus-Jack-Highest-Hat-Olive.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/Travis-Scott-Cactus-Jack-Air-Jordan-1-Hat-Brown.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2']},
-
-        {id:6,cat:'accessories',label:'Drop',lc:'l-new',brand:'Carhartt WIP',name:'Acrylic Watch Beanie — Black',price:38,stockx:null,stock:'In stock',ok:true,
-            desc:'Carhartt WIP Acrylic Watch Hat. Default beanie van Kendrick tot Haaland. Simpel, clean, altijd icy.',
-            imgs:['https://images.stockx.com/images/Carhartt-WIP-Acrylic-Watch-Hat-Black.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/Carhartt-WIP-Acrylic-Watch-Hat-Natural.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/Carhartt-WIP-Acrylic-Watch-Hat-White.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2']},
-
-        {id:7,cat:'headwear',label:'Human Made',lc:'l-collab',brand:'Human Made × Pharrell',name:'Duck Patch Cap — Beige',price:115,stockx:110,stock:'2 left',ok:false,
-            desc:"Pharrell's eigen merk Human Made. Duck Patch Cap in beige. Japanese craftsmanship, iconic duck logo.",
-            imgs:['https://images.stockx.com/images/Human-Made-Duck-Patch-Cap-Beige.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/Human-Made-Duck-Patch-Cap-Black.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/Human-Made-Duck-Patch-Cap-Olive.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2']},
-
-        {id:8,cat:'accessories',label:'Off-White',lc:'l-rare',brand:'Off-White',name:'Industrial Waist Belt — Yellow',price:195,stockx:185,stock:'2 left',ok:false,
-            desc:"Virgil Abloh's meest iconische accessoire. Gezien op elk festival en elke streetwear shoot wereldwijd.",
-            imgs:['https://images.stockx.com/images/Off-White-Industrial-Waist-Belt-Yellow.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/Off-White-Industrial-Waist-Belt-Yellow-2021.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/Off-White-Industrial-Waist-Belt-White.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2']},
-
-        {id:9,cat:'headwear',label:'SS24',lc:'l-new',brand:'Stüssy',name:'Stock Bucket Hat — Black',price:62,stockx:58,stock:'In stock',ok:true,
-            desc:'Stüssy Stock Bucket Hat. Gedragen door Neymar, Tyler en Carti. Klassiek silhouet, premium kwaliteit.',
-            imgs:['https://images.stockx.com/images/Stussy-Stock-Lock-Deep-Bucket-Hat-Black.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/Stussy-Stock-Lock-Deep-Bucket-Hat-White.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/Stussy-Stock-Lock-Deep-Bucket-Hat-Sage.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2']},
-
-        {id:10,cat:'bags',label:'Nike ACG',lc:'l-collab',brand:'Nike ACG',name:'Aysen Fanny Pack 3L — Black',price:68,stockx:72,stock:'In stock',ok:true,
-            desc:'Nike ACG Aysen Fanny Pack. Waterbestendig, lichtgewicht. Essential voor de moderne streetwear setup.',
-            imgs:['https://images.stockx.com/images/Nike-ACG-Aysen-Fanny-Pack-3L-Black.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/Nike-ACG-Aysen-Hiking-Fanny-Pack-3L-Black.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/Nike-ACG-Small-Items-Pouch-Black.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2']},
-
-        {id:11,cat:'headwear',label:'KITH',lc:'l-collab',brand:'Kith × New Era',name:'Low Profile 59Fifty Fitted — Black',price:95,stockx:95,stock:'3 left',ok:false,
-            desc:'Kith × New Era Low Profile 59Fifty. Clean, premium, perfect met elke fit.',
-            imgs:['https://images.stockx.com/images/Kith-x-New-Era-Low-Profile-59Fifty-Fitted-Hat-Black.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/Kith-x-New-Era-for-New-York-Yankees-59Fifty-Low-Profile-Fitted-Hat-Black-FW22.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/Kith-x-New-Era-for-the-New-York-Mets-Low-Profile-59Fifty-Rose-Gold.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2']},
-
-        {id:12,cat:'accessories',label:'FW24',lc:'l-rare',brand:'Supreme × Audio-Technica',name:'Sound Burger Turntable Red FW24',price:379,stockx:379,stock:'Sold Out',ok:false,
-            desc:'Supreme × Audio-Technica Sound Burger portable turntable FW24. Ultra limited. Een van de meest bizarre drops ooit.',
-            imgs:['https://images.stockx.com/images/Supreme-Audio-Technica-AT-SB727-Sound-Burger-Turntable-Red.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/Supreme-Audio-Technica-AT-SB727-Sound-Burger-Turntable-Red-FW24.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/Supreme-Audio-Technica-AT-LP60XUSB-Turntable-Black.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2']},
-
-        {id:13,cat:'accessories',label:'Collab',lc:'l-collab',brand:'Supreme × Fox Racing',name:'DMX V1 Helmet FW25 — Snow Camo',price:480,stockx:null,stock:'1 left',ok:false,
-            desc:'Supreme × Fox Racing DMX V1 Helmet FW25. Snow Camo colorway. Een van de wildste pieces van het jaar.',
-            imgs:['https://images.stockx.com/images/Supreme-Fox-Racing-DMX-V1-Helmet-Snow-Camo.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/Supreme-Fox-Racing-DMX-V1-Helmet-Grey.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/Supreme-Fox-Racing-Moto-Jersey-Camo.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2']},
-
-        {id:14,cat:'accessories',label:'Rare',lc:'l-rare',brand:'Palace Skateboards',name:'Tri-Ferg Necklace Chain — Silver',price:240,stockx:null,stock:'2 left',ok:false,
-            desc:'Palace Tri-Ferg necklace. Het meest herkenbare logo in Britse streetwear als ketting. Gedragen door Central Cee en Dave.',
-            imgs:['https://img.grailed.com/iY7N3rmCLaSn-kN0X1mVLQ/image/upload/f_auto,q_auto:eco,c_limit,w_700/lhfblbjqijczs4nqeypj',
-                'https://images.stockx.com/images/Palace-Tri-Ferg-Metal-Keyring-Silver.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/Palace-Skateboards-Tri-Ferg-Cap-Green.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2']},
-
-        {id:15,cat:'accessories',label:'Archive',lc:'l-arch',brand:'Supreme × Louis Vuitton',name:'LV Monogram Bandana SS17 — Brown',price:620,stockx:620,stock:'1 left',ok:false,
-            desc:'Supreme × Louis Vuitton Monogram Bandana SS17. Absolute grail. Een van de meest iconische collab items ooit.',
-            imgs:['https://cdn-images.farfetch-contents.com/14/45/73/67/14457367_22254705_480.jpg',
-                'https://images.stockx.com/images/Supreme-Louis-Vuitton-LV-Logo-Bandana-Brown.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/Supreme-Louis-Vuitton-LV-Logo-Bandana-Red.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2']},
-
-        {id:16,cat:'bags',label:'SS24',lc:'l-new',brand:'Supreme',name:'Hav-A-Hank Bandanas 3-Pack SS24',price:68,stockx:68,stock:'In stock',ok:true,
-            desc:'Supreme Hav-A-Hank Bandanas 3-pack SS24. Multicolor set. Gedragen door iedereen van Neymar tot Tyler.',
-            imgs:['https://images.stockx.com/images/Supreme-Hav-A-Hank-Bandanas-3-Pack-Multicolor.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/Supreme-Hav-A-Hank-Bandanas-3-Pack-Multicolor-SS24.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2',
-                'https://images.stockx.com/images/Supreme-Bandana-Box-Logo-Tee-White.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=90&dpr=2']}
-    ];
-
-
-    // ══════════════════════════════════
-    // GHOST ARCHIVE — guaranteed visible product visuals
-    // These SVG data images prevent broken hotlinked photos and make the site feel complete.
-    // ══════════════════════════════════
-    function gaSvgImage(title, brand, index=0){
-        const palettes=[
-            ['#080808','#c9a227','#b5ff00'],
-            ['#111111','#bf2c24','#f0e8d0'],
-            ['#0d0d0d','#585858','#c9a227']
-        ];
-        const p=palettes[index%palettes.length];
-        const safeTitle=String(title||'ARCHIVE PIECE').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-        const safeBrand=String(brand||'GHOST ARCHIVE').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-        const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200" viewBox="0 0 900 1200">
-    <defs>
-      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="${p[0]}"/>
-        <stop offset="0.52" stop-color="#161616"/>
-        <stop offset="1" stop-color="#050505"/>
-      </linearGradient>
-      <radialGradient id="glow" cx="50%" cy="35%" r="55%">
-        <stop offset="0" stop-color="${p[1]}" stop-opacity=".34"/>
-        <stop offset=".55" stop-color="${p[1]}" stop-opacity=".06"/>
-        <stop offset="1" stop-color="${p[1]}" stop-opacity="0"/>
-      </radialGradient>
-      <filter id="noise">
-        <feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="4"/>
-        <feColorMatrix type="saturate" values="0"/>
-        <feComponentTransfer><feFuncA type="table" tableValues="0 .12"/></feComponentTransfer>
-      </filter>
-    </defs>
-    <rect width="900" height="1200" fill="url(#bg)"/>
-    <rect width="900" height="1200" fill="url(#glow)"/>
-    <rect width="900" height="1200" filter="url(#noise)" opacity=".25"/>
-    <g opacity=".18" stroke="${p[1]}" stroke-width="2">
-      <path d="M80 130H820M80 1070H820M120 90V1110M780 90V1110"/>
-      <circle cx="450" cy="520" r="245" fill="none"/>
-      <circle cx="450" cy="520" r="160" fill="none"/>
-    </g>
-    <g transform="translate(170 250)">
-      <rect x="0" y="0" width="560" height="560" rx="34" fill="#101010" stroke="${p[1]}" stroke-opacity=".55" stroke-width="5"/>
-      <rect x="48" y="58" width="464" height="380" rx="18" fill="#1b1b1b" stroke="#2d2d2d"/>
-      <path d="M140 430L252 238L345 360L415 285L494 430Z" fill="${p[1]}" opacity=".8"/>
-      <circle cx="365" cy="160" r="54" fill="${p[2]}" opacity=".72"/>
-      <rect x="110" y="480" width="340" height="34" rx="17" fill="${p[1]}" opacity=".9"/>
-    </g>
-    <text x="450" y="110" text-anchor="middle" fill="${p[1]}" font-family="Arial Black, Impact, sans-serif" font-size="54" letter-spacing="8">GHOST ARCHIVE</text>
-    <text x="450" y="878" text-anchor="middle" fill="#f0e8d0" font-family="Arial Black, Impact, sans-serif" font-size="44" letter-spacing="2">${safeBrand}</text>
-    <foreignObject x="110" y="918" width="680" height="155">
-      <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:Arial Black,Impact,sans-serif;color:#f0e8d0;text-align:center;font-size:48px;line-height:1.05;text-transform:uppercase;letter-spacing:2px;word-break:break-word;">${safeTitle}</div>
-    </foreignObject>
-    <text x="450" y="1120" text-anchor="middle" fill="${p[2]}" font-family="monospace" font-size="22" letter-spacing="6">VERIFIED VAULT PIECE</text>
-  </svg>`;
-        return 'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg);
-    }
-
-    PRODUCTS.forEach((p,i)=>{
-        p.originalImgs = p.imgs;
-        p.imgs = [
-            gaSvgImage(p.name,p.brand,0),
-            gaSvgImage(p.name+' / Detail',p.brand,1),
-            gaSvgImage(p.name+' / Vault',p.brand,2)
-        ];
-    });
-
-    function gaAvatar(name, cat){
-        const initials=String(name||'GA').split(' ').map(w=>w[0]).join('').slice(0,2);
-        const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">
-    <rect width="180" height="180" fill="#080808"/>
-    <circle cx="90" cy="90" r="72" fill="#141414" stroke="#c9a227" stroke-width="5"/>
-    <text x="90" y="101" text-anchor="middle" fill="#c9a227" font-family="Arial Black,Impact,sans-serif" font-size="46">${initials}</text>
-    <text x="90" y="136" text-anchor="middle" fill="#b5ff00" font-family="monospace" font-size="12" letter-spacing="2">${String(cat||'VAULT').slice(0,10)}</text>
-  </svg>`;
-        return 'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg);
-    }
-
-    if(typeof CELEBS!=='undefined'){
-        CELEBS.forEach(c=>{ c.img = gaAvatar(c.n,c.cat); });
-    }
-
-
-    // ══════════════════════════════════
-    // CELEBRITIES with real profile links
-    // ══════════════════════════════════
-    const CELEBS=[
-        {n:'PHARRELL',cat:'MUZIEK / MODE',cl:'n-art',cc:'c-art',url:'https://www.instagram.com/pharrell/',img:'https://unavatar.io/instagram/pharrell'},
-        {n:'TRAVIS SCOTT',cat:'RAPPER',cl:'n-rap',cc:'c-rap',url:'https://www.instagram.com/travisscott/',img:'https://unavatar.io/instagram/travisscott'},
-        {n:'NEYMAR JR',cat:'VOETBAL',cl:'n-foot',cc:'c-foot',url:'https://www.instagram.com/neymarjr/',img:'https://unavatar.io/instagram/neymarjr'},
-        {n:'ASAP ROCKY',cat:'RAPPER',cl:'n-rap',cc:'c-rap',url:'https://www.instagram.com/asaprocky/',img:'https://unavatar.io/instagram/asaprocky'},
-        {n:'MBAPPÉ',cat:'VOETBAL',cl:'n-foot',cc:'c-foot',url:'https://www.instagram.com/k.mbappe/',img:'https://unavatar.io/instagram/k.mbappe'},
-        {n:'TYLER THE CREATOR',cat:'RAPPER',cl:'n-rap',cc:'c-rap',url:'https://www.instagram.com/feliciathegoat/',img:'https://unavatar.io/instagram/feliciathegoat'},
-        {n:'BELLINGHAM',cat:'VOETBAL',cl:'n-foot',cc:'c-foot',url:'https://www.instagram.com/jude_bellingham/',img:'https://unavatar.io/instagram/jude_bellingham'},
-        {n:'PLAYBOI CARTI',cat:'RAPPER',cl:'n-rap',cc:'c-rap',url:'https://www.instagram.com/playboicarti/',img:'https://unavatar.io/instagram/playboicarti'},
-        {n:'HAALAND',cat:'VOETBAL',cl:'n-foot',cc:'c-foot',url:'https://www.instagram.com/erling.haaland/',img:'https://unavatar.io/instagram/erling.haaland'},
-        {n:'LIL UZI VERT',cat:'RAPPER',cl:'n-rap',cc:'c-rap',url:'https://www.instagram.com/liluzivert/',img:'https://unavatar.io/instagram/liluzivert'},
-        {n:'VINICIUS JR',cat:'VOETBAL',cl:'n-foot',cc:'c-foot',url:'https://www.instagram.com/vinijr/',img:'https://unavatar.io/instagram/vinijr'},
-        {n:'CENTRAL CEE',cat:'RAPPER',cl:'n-rap',cc:'c-rap',url:'https://www.instagram.com/centralcee_/',img:'https://unavatar.io/instagram/centralcee_'},
-        {n:'ODELL BECKHAM JR',cat:'NFL',cl:'n-nfl',cc:'c-nfl',url:'https://www.instagram.com/obj/',img:'https://unavatar.io/instagram/obj'},
-        {n:'VIRGIL ABLOH',cat:'DESIGNER',cl:'n-art',cc:'c-art',url:'https://en.wikipedia.org/wiki/Virgil_Abloh',img:'https://ui-avatars.com/api/?name=virgil-abloh&background=080808&color=c9a227&bold=true&size=128'},
-        {n:'POGBA',cat:'VOETBAL',cl:'n-foot',cc:'c-foot',url:'https://www.instagram.com/paulpogba/',img:'https://unavatar.io/instagram/paulpogba'},
-        {n:'KID CUDI',cat:'RAPPER',cl:'n-rap',cc:'c-rap',url:'https://www.instagram.com/kidcudi/',img:'https://unavatar.io/instagram/kidcudi'},
-        {n:'RONALDO',cat:'VOETBAL',cl:'n-foot',cc:'c-foot',url:'https://www.instagram.com/cristiano/',img:'https://unavatar.io/instagram/cristiano'},
-        {n:'GUNNA',cat:'RAPPER',cl:'n-rap',cc:'c-rap',url:'https://www.instagram.com/gunna/',img:'https://unavatar.io/instagram/gunna'},
-        {n:'LUKA MODRIĆ',cat:'VOETBAL',cl:'n-foot',cc:'c-foot',url:'https://www.instagram.com/lukamodric10/',img:'https://unavatar.io/instagram/lukamodric10'},
-        {n:'TYLER HERRO',cat:'NBA',cl:'n-nfl',cc:'c-nfl',url:'https://www.instagram.com/tyler.herro/',img:'https://unavatar.io/instagram/tyler.herro'},
-    ];
-
-    // ── STATE ──
-    let cart=[], activeProd=null, activeFilter='all';
-
-    // ── FILTER TABS ──
-    const CATS={all:'All Drops',headwear:'Headwear',bags:'Bags',accessories:'Accessories'};
-    function renderTabs(){
-        document.getElementById('filterTabs').innerHTML=Object.entries(CATS).map(([k,v])=>
-            `<button class="ftab ${k===activeFilter?'active':''}" onclick="setFilter('${k}')">${v}</button>`
-        ).join('');
-    }
-    function setFilter(cat){
-        activeFilter=cat; renderTabs();
-        document.querySelectorAll('.pc').forEach(el=>{
-            const p=PRODUCTS.find(x=>x.id===parseInt(el.dataset.id));
-            el.classList.toggle('hidden',cat!=='all'&&p.cat!==cat);
-        });
-    }
-
-    // ── RENDER PRODUCTS ──
-    function renderProducts(){
-        document.getElementById('productGrid').innerHTML=PRODUCTS.map((p,i)=>{
-            const isSold = p.stock==='Sold Out';
-            return `
-    <div class="pc rv" data-id="${p.id}" style="transition-delay:${(i%4)*.07}s">
-      <span class="plbl ${p.lc}">${p.label}</span>
-      <div class="pc-imgs" id="imgs-${p.id}" onclick="openModal(${p.id})">
-        ${p.imgs.map((s,j)=>`<img src="${s}" alt="${p.name}" class="${j===0?'active':''}" loading="lazy" onerror="this.src='https://images.stockx.com/images/Supreme-Box-Logo-Tee-White.jpg?fit=fill&bg=FFFFFF&w=700&h=700&auto=format,compress&q=70'"/>`).join('')}
-        <div class="pc-dots">${p.imgs.map((_,j)=>`<button class="pc-dot ${j===0?'active':''}" onclick="slideImg(event,${p.id},${j})"></button>`).join('')}</div>
-        <button class="pc-nav prev" onclick="slideImg(event,${p.id},'prev')">&#8592;</button>
-        <button class="pc-nav next" onclick="slideImg(event,${p.id},'next')">&#8594;</button>
-        ${isSold?`<div class="sold-overlay"><span>SOLD OUT</span></div>`:''}
-        <div class="pc-ov">
-          <button class="pc-btn ${isSold?'sold':'avail'}" id="pcbtn-${p.id}" onclick="${isSold?'':'addToCart(event,'+p.id+')'}">
-            ${isSold?'Sold Out':'Add to Cart'}
-          </button>
-        </div>
-        ${p.stockx?`<div class="psx">StockX <strong>€${p.stockx}</strong></div>`:''}
-      </div>
-      <div class="pc-info" onclick="openModal(${p.id})">
-        <div class="pc-brand">${p.brand}</div>
-        <div class="pc-name">${p.name}</div>
-        <div class="pc-ft"><span class="pc-price">€${p.price}</span><span class="pc-stock ${p.ok?'ok':''}">${p.stock}</span></div>
-      </div>
-    </div>`;
-        }).join('');
-        document.querySelectorAll('.rv:not(.on)').forEach(el=>io.observe(el));
-    }
-
-    // ── RENDER NAMES ──
-    function renderNames(){
-        const all=[...CELEBS,...CELEBS];
-        document.getElementById('namesTrack').innerHTML=all.map(x=>`
-    <a class="n-item ${x.cl}" href="${x.url}" target="_blank" rel="noopener noreferrer" title="Open ${x.n}">
-      <img class="celebrity-avatar" src="${x.img}" alt="${x.n}" loading="lazy"
-           onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(x.n)}&background=080808&color=c9a227&bold=true&size=128'"/>
-      ${x.n} <span class="n-cat ${x.cc}">${x.cat}</span><span class="n-arrow">↗</span>
-    </a>`).join('');
-    }
-
-    // ── SLIDESHOW ──
-    function slideImg(e,id,dir){
-        e.stopPropagation();
-        const c=document.getElementById('imgs-'+id);
-        const imgs=[...c.querySelectorAll('img')];
-        const dots=[...c.querySelectorAll('.pc-dot')];
-        let cur=imgs.findIndex(i=>i.classList.contains('active'));
-        imgs[cur].classList.remove('active'); dots[cur]?.classList.remove('active');
-        let next=dir==='prev'?(cur-1+imgs.length)%imgs.length:dir==='next'?(cur+1)%imgs.length:dir;
-        imgs[next].classList.add('active'); dots[next]?.classList.add('active');
-    }
-
-    // ── MODAL ──
-    function openModal(id){
-        const p=PRODUCTS.find(x=>x.id===id); if(!p)return;
-        activeProd=p;
-        document.getElementById('mBrand').textContent=p.brand;
-        document.getElementById('mName').textContent=p.name;
-        document.getElementById('mPrice').textContent='€'+p.price;
-        document.getElementById('mStx').textContent=p.stockx?'StockX last sale: €'+p.stockx:'';
-        document.getElementById('mDesc').textContent=p.desc;
-        const sd=document.getElementById('mSd'); sd.className='msd'+(p.ok?' ok':'');
-        document.getElementById('mSt').textContent=p.stock;
-        const mi=document.getElementById('modalMain'); mi.src=p.imgs[0]; mi.alt=p.name;
-        document.getElementById('modalThumbs').innerHTML=p.imgs.map((s,i)=>
-            `<img class="modal-thumb ${i===0?'active':''}" src="${s}" alt="" onclick="setModalImg(${i})" loading="lazy"/>`
-        ).join('');
-        // sold overlay in modal
-        const existing=document.getElementById('modalImgContainer').querySelector('.sold-overlay');
-        if(existing) existing.remove();
-        if(p.stock==='Sold Out'){
-            const ov=document.createElement('div'); ov.className='sold-overlay';
-            ov.innerHTML='<span>SOLD OUT</span>';
-            document.getElementById('modalImgContainer').appendChild(ov);
-        }
-        const addBtn=document.getElementById('mAddBtn');
-        const isSold=p.stock==='Sold Out';
-        addBtn.textContent=isSold?'Sold Out — View on StockX':'Add to Cart →';
-        addBtn.style.background=isSold?'#1e1e1e':'';
-        addBtn.style.color=isSold?'var(--muted)':'';
-        addBtn.onclick=isSold?()=>window.open('https://stockx.com/search?s='+encodeURIComponent(p.name),'_blank'):addFromModal;
-        document.getElementById('modalOv').classList.add('open');
-        document.body.style.overflow='hidden';
-    }
-    function setModalImg(i){
-        document.getElementById('modalMain').src=activeProd.imgs[i];
-        document.querySelectorAll('.modal-thumb').forEach((t,j)=>t.classList.toggle('active',j===i));
-    }
-    function closeModal(){document.getElementById('modalOv').classList.remove('open');document.body.style.overflow='';activeProd=null;}
-    function handleModalClick(e){if(e.target===e.currentTarget)closeModal();}
-    function addFromModal(){
-        if(!activeProd||activeProd.stock==='Sold Out')return;
-        const imgEl=document.querySelector('#modalMain');
-        doAddToCart(activeProd,imgEl);
-        const btn=document.getElementById('mAddBtn');
-        btn.textContent='Added ✓'; btn.classList.add('added');
-        setTimeout(()=>{btn.textContent='Add to Cart →';btn.classList.remove('added');},1600);
-    }
-
-    // ══════════════════════════════════
-    // PURCHASE ANIMATIONS
-    // ══════════════════════════════════
-    function triggerBuyAnim(imgSrc, triggerEl){
-        const vf=document.createElement('div'); vf.className='vf';
-        document.body.appendChild(vf); setTimeout(()=>vf.remove(),520);
-
-        const cartEl=document.getElementById('cartBtnEl');
-        const cRect=cartEl.getBoundingClientRect();
-        const sRect=triggerEl.getBoundingClientRect();
-        const fly=document.createElement('img');
-        fly.className='fly-item';
-        fly.src=imgSrc;
-        const W=Math.min(sRect.width,120), H=Math.min(sRect.height,120);
-        fly.style.cssText=`left:${sRect.left+(sRect.width-W)/2}px;top:${sRect.top+(sRect.height-H)/2}px;width:${W}px;height:${H}px;z-index:1100;`;
-        const tx=cRect.left+cRect.width/2-(sRect.left+W/2);
-        const ty=cRect.top+cRect.height/2-(sRect.top+H/2);
-        fly.style.setProperty('--tx',tx+'px');
-        fly.style.setProperty('--ty',ty+'px');
-        document.getElementById('addOverlay').appendChild(fly);
-        fly.style.animation='flyToCart .72s cubic-bezier(.4,0,.2,1) forwards';
-        setTimeout(()=>fly.remove(),780);
-
-        const cols=['#b5ff00','#c9a227','#bf2c24','#f0e8d0','#ffffff','#ff9632'];
-        for(let i=0;i<22;i++){
-            const cp=document.createElement('div'); cp.className='cp';
-            const cx=(Math.random()-.5)*260+'px', cy=-(Math.random()*200+50)+'px';
-            cp.style.cssText=`left:${sRect.left+sRect.width/2}px;top:${sRect.top+sRect.height/2}px;background:${cols[i%cols.length]};border-radius:${Math.random()>.5?'50%':'2px'};--cx:${cx};--cy:${cy};--cr:${(Math.random()*540-270)+'deg'};--d:${(Math.random()*.6+.45)+'s'}`;
-            document.getElementById('addOverlay').appendChild(cp);
-            setTimeout(()=>cp.remove(),1100);
-        }
-
-        const pop=document.createElement('div'); pop.className='chk-pop';
-        pop.textContent='ADDED TO BAG ✓';
-        pop.style.cssText=`top:${cRect.bottom+10}px;left:${cRect.left+cRect.width/2}px;`;
-        document.body.appendChild(pop);
-        setTimeout(()=>{pop.style.transition='opacity .4s';pop.style.opacity='0';setTimeout(()=>pop.remove(),420);},1500);
-
-        cartEl.style.animation='cartBounce .35s ease forwards';
-        setTimeout(()=>{cartEl.style.animation='';},380);
-    }
-
-    // ── CART ──
-    function addToCart(e,id){
-        e.stopPropagation();
-        const p=PRODUCTS.find(x=>x.id===id); if(!p||p.stock==='Sold Out')return;
-        const imgEl=document.querySelector(`#imgs-${id} img.active`);
-        doAddToCart(p,imgEl);
-        const btn=document.getElementById('pcbtn-'+id);
-        btn.textContent='Added ✓'; btn.classList.add('adding');
-        setTimeout(()=>{btn.textContent='Add to Cart';btn.classList.remove('adding');},1500);
-    }
-    function doAddToCart(p,imgEl){
-        const ex=cart.find(c=>c.id===p.id);
-        if(ex) ex.qty++; else cart.push({...p,qty:1});
-        updateCartUI();
-        if(imgEl) triggerBuyAnim(imgEl.src,imgEl);
-    }
-    function removeFromCart(id){cart=cart.filter(c=>c.id!==id);updateCartUI();}
-    function changeQty(id,d){
-        const it=cart.find(c=>c.id===id); if(!it)return;
-        it.qty+=d;
-        if(it.qty<=0)cart=cart.filter(c=>c.id!==id);
-        updateCartUI();
-    }
-    function updateCartUI(){
-        const total=cart.reduce((s,c)=>s+c.price*c.qty,0);
-        const count=cart.reduce((s,c)=>s+c.qty,0);
-        const badge=document.getElementById('cartCount');
-        badge.textContent=count; badge.classList.toggle('show',count>0);
-        document.getElementById('cartTotal').textContent='€'+total;
-        const el=document.getElementById('cartItems');
-        if(!cart.length){el.innerHTML='<div class="cart-empty"><div class="cart-empty-ttl">BAG IS EMPTY</div><div class="cart-empty-sub">Add rare vault pieces</div></div>';return;}
-        el.innerHTML=cart.map(c=>`
-    <div class="ci">
-      <img src="${c.imgs[0]}" alt="${c.name}" onerror="this.style.opacity='.2'"/>
-      <div>
-        <div class="ci-brand">${c.brand}</div>
-        <div class="ci-name">${c.name.split('—')[0].trim()}</div>
-        <div class="ci-price">€${c.price*c.qty}</div>
-        <div class="ci-qty">
-          <button class="qb2" onclick="changeQty(${c.id},-1)">−</button>
-          <span class="qv2">${c.qty}</span>
-          <button class="qb2" onclick="changeQty(${c.id},1)">+</button>
-        </div>
-      </div>
-      <button class="rmb" onclick="removeFromCart(${c.id})">✕</button>
-    </div>`).join('');
-    }
-    function openCart(){document.getElementById('cartPanel').classList.add('open');document.getElementById('cartOv').classList.add('open');document.body.style.overflow='hidden';}
-    function closeCart(){document.getElementById('cartPanel').classList.remove('open');document.getElementById('cartOv').classList.remove('open');document.body.style.overflow='';}
-    function checkout(){
-        if(!cart.length){openCart();return;}
-        closeCart();
-        const pop=document.createElement('div'); pop.className='chk-pop';
-        pop.style.cssText='top:50%;left:50%;transform:translate(-50%,-50%);font-size:1.1rem;padding:18px 36px;z-index:1300;';
-        pop.textContent='VAULT CHECKOUT COMING SOON';
-        document.body.appendChild(pop);
-        setTimeout(()=>{pop.style.transition='opacity .5s';pop.style.opacity='0';setTimeout(()=>pop.remove(),500);},2200);
-    }
-
-    // ── NL SIGNUP ──
-    function nlSignup(btn){btn.textContent='Activated ✓';setTimeout(()=>{btn.textContent='Vault Alert Activeren →';},2500);}
-
-    // ── CURSOR ──
-    const cur=document.getElementById('cur'),curR=document.getElementById('cur-r');
-    let mx=0,my=0,rx=0,ry=0;
-    document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
-    (function loop(){cur.style.left=mx+'px';cur.style.top=my+'px';rx+=(mx-rx)*.11;ry+=(my-ry)*.11;curR.style.left=rx+'px';curR.style.top=ry+'px';requestAnimationFrame(loop);})();
-
-    // ── COUNTDOWN ──
-    (function(){const el=document.getElementById('tval');setInterval(()=>{const p=el.textContent.split(':').map(Number);let s=p[0]*3600+p[1]*60+p[2];s=s>0?s-1:86399;el.textContent=[String(Math.floor(s/3600)).padStart(2,'0'),String(Math.floor(s%3600/60)).padStart(2,'0'),String(s%60).padStart(2,'0')].join(':');},1000);})();
-
-    // ── REVEAL ──
-    const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('on');});},{threshold:.06});
-    document.querySelectorAll('.rv').forEach(el=>io.observe(el));
-
-    // ── INIT ──
-    renderProducts(); renderTabs(); renderNames();
-</script>
-
-<script>
-    document.addEventListener('DOMContentLoaded',()=>{
-        if(typeof gaSvgImage==='function'){
-            document.querySelectorAll('.fcard img').forEach((img,i)=>{
-                const card=img.closest('.fw');
-                const title=card?.querySelector('.fmeta-name')?.textContent || 'Vault Piece';
-                img.src=gaSvgImage(title,'GHOST ARCHIVE',i);
-            });
-            document.querySelectorAll('.ct img,.qv img').forEach((img,i)=>{
-                img.src=gaSvgImage(i===0?'Street Culture':i===1?'Rare Pieces':'Vault Energy','GHOST ARCHIVE',i);
-            });
-        }
-    });
-</script>
-
-</body>
-</html>
+    const PRODUCTS={json.dumps(products, ensure_ascii=False)};
+    const CELEBS={celebs_js};
+    let activeBrand='All',activeCat='All',cart=[];
+    function unique(a){{return ['All',...new Set(a)]}}
+    function renderFilters(){{const brands=unique(PRODUCTS.map(p=>p.brand));const cats=unique(PRODUCTS.map(p=>p.cat));brandList.innerHTML=brands.map(b=>{{const p=PRODUCTS.find(x=>x.brand===b)||{{mark:'ALL'}};return `<button class="brand-btn ${{activeBrand===b?'active':''}}" onclick="activeBrand='${{b}}';renderAll()"><span class="mark-small">${{b==='All'?'ALL':p.mark}}</span><span>${{b}}</span></button>`}}).join('');catList.innerHTML=cats.map(c=>`<button class="cat-btn ${{activeCat===c?'active':''}}" onclick="activeCat='${{c}}';renderAll()"><span>${{c}}</span><span>↗</span></button>`).join('')}}
+    function getFiltered(){{return PRODUCTS.filter(p=>(activeBrand==='All'||p.brand===activeBrand)&&(activeCat==='All'||p.cat===activeCat))}}
+    function renderProducts(){{productGrid.innerHTML=getFiltered().map(p=>{{const i=PRODUCTS.indexOf(p);return `<article class="pc"><div class="pc-img" onclick="openProduct(${{i}})"><img src="${{p.img}}" alt="${{p.name}}"><div class="brand-mark">${{p.mark}}</div><div class="photo-label">INCLUDED</div></div><div class="pc-info"><div class="pc-brand"><span class="mark-small">${{p.mark}}</span>${{p.brand}}</div><div class="pc-name">${{p.name}}</div><div class="pc-ft"><span class="price">€${{p.price}}</span><span class="stock">${{p.stock}}</span></div><button class="add" onclick="addToCart(${{i}})">Add to Bag</button></div></article>`}}).join('')}}
+    function renderNames(){{const all=[...CELEBS,...CELEBS];namesTrack.innerHTML=all.map(x=>`<a class="n-item ${{x.cl}}" href="${{x.url}}" target="_blank" rel="noopener noreferrer">${{x.n}} <span class="n-cat ${{x.cc}}">${{x.cat}}</span><span class="n-arrow">↗</span></a>`).join('')}}
+    function renderAll(){{renderFilters();renderProducts();renderNames()}}
+    function openProduct(i){{const p=PRODUCTS[i];modalImg.src=p.img;modalMark.textContent=p.mark;modalBrand.innerHTML=`<span class="mark-small">${{p.mark}}</span>${{p.brand}} · ${{p.cat}}`;modalName.textContent=p.name;modalPrice.textContent='€'+p.price;modalDesc.textContent=p.desc;modalAdd.onclick=()=>addToCart(i);modal.classList.add('open')}}
+    function closeModal(e){{if(!e||e.target.id==='modal'||e.target.className==='close')modal.classList.remove('open')}}
+    function addToCart(i){{cart.push(PRODUCTS[i]);renderCart();cartPanel=document.getElementById('cart');cartPanel.classList.add('open')}}
+    function renderCart(){{cartCount.textContent=cart.length;cartItems.innerHTML=cart.length?cart.map(p=>`<div class="ci"><img src="${{p.img}}"><div><b>${{p.name}}</b><br><span style="color:var(--muted);font-size:.62rem">${{p.brand}}</span></div><span class="price" style="font-size:1.1rem">€${{p.price}}</span></div>`).join(''):'<p style="color:var(--muted)">Your bag is empty.</p>';total.textContent='€'+cart.reduce((s,p)=>s+p.price,0)}}
+    function toggleCart(){{document.getElementById('cart').classList.toggle('open');renderCart()}}
+    renderAll();renderCart();
+</script></body></html>"""
+out=Path("/mnt/data/GHOST_ARCHIVE_embedded_images_celebrity_wall.html")
+out.write_text(html, encoding="utf-8")
+print(out)
