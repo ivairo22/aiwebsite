@@ -1,89 +1,95 @@
-# Recipe Users API
-
-Een simpele JavaScript dataset met helper functies voor gebruikers van een cooking platform.
+# GHOST ARCHIVE – Streetwear Vault
 
 ## Features
 
-* Gebruikers ophalen via ID
-* Gebruikers ophalen via username
-* Filteren op role
-* Filteren op dietary preference
-* Actieve gebruikers ophalen
-* Verified gebruikers ophalen
-* Top users ophalen op basis van followers
+* Streetwear webshop with products (caps, beanies, bags, accessories)
+* Celebrity inspiration (scrolling “vault wall” with clickable profiles)
+* Shopping cart system (add to bag)
+* Filtering by:
+
+    * brand
+    * category (headwear, bags, accessories)
+* Product modal (click on an item for more details)
+* Visual brand badges on each product
 
 ---
 
-## Installatie
+## Installation
 
-1. Clone het project
+1. Download or clone the project
 
 ```bash
 git clone <repo-url>
 ```
 
-2. Open het project in WebStorm
+2. Extract the ZIP file (if needed)
 
-3. Installeer dependencies
-
-```bash
-npm install
-```
+3. Open the project in WebStorm
 
 ---
 
-## Gebruik
+## Usage
 
-Importeer functies in je project:
+1. Open `index.html`
+2. Right click → **Open in Browser**
 
-```js
-const {
-  users,
-  getUserById,
-  getUserByUsername,
-  getUsersByRole,
-  getActiveUsers,
-  getVerifiedUsers,
-  getUsersByDiet,
-  getTopUsers,
-} = require('./users');
-```
+The website works fully locally:
 
-Voorbeelden:
-
-```js
-console.log(getUserById(1));
-
-console.log(getUserByUsername('laura_montoya'));
-
-console.log(getTopUsers(3));
-```
+* No backend required
+* No dependencies required
+* All images are included in the project
 
 ---
 
-## Project Structuur
+## Project Structure
 
 ```bash
-project-folder/
+GHOST_ARCHIVE/
 │
-├── users.js
-├── package.json
-└── README.md
+├── index.html
+├── css/
+│   └── style.css
+├── js/
+│   └── app.js
+└── assets/
+    └── images/
 ```
 
 ---
 
 ## Tech Stack
 
+* HTML
+* CSS
 * JavaScript
-* Node.js
 * WebStorm
+* AI (used for design and concept)
 
 ---
 
-## Auteur
+## About the Project
 
-Gemaakt voor oefening en learning purposes.
-https://claude.ai/share/24259245-418c-46c3-91b7-ae5657cfedb1
-https://chatgpt.com/share/6a18483e-50dc-83eb-9e5f-2b7b6bfcac45
-https://chatgpt.com/share/6a2abedf-11b0-83eb-9b71-743cde62517e
+GHOST ARCHIVE is a digital streetwear “vault” where products and culture come together.
+The focus is on visual style, branding, and inspiration from celebrities.
+
+---
+
+## Author
+
+Created for school and learning purposes.
+
+AI tools used:
+
+* ChatGPT
+* Claude
+
+---
+
+## References
+
+Self reflection and additional documentation:
+
+* https://sintlucasedunl-my.sharepoint.com/:t:/r/personal/i_wolfenbuttel_sintlucasedu_nl/Documents/Chatbestanden%20van%20Microsoft%20Teams/zelfreflectie.md?csf=1&web=1&e=XRphnN
+* https://claude.ai/share/24259245-418c-46c3-91b7-ae5657cfedb1
+* https://chatgpt.com/share/6a18483e-50dc-83eb-9e5f-2b7b6bfcac45
+* https://chatgpt.com/share/6a2abedf-11b0-83eb-9b71-743cde62517e
